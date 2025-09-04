@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>AI:幸运房东</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background: #222;
+            color: #fff;
+        }
+
+        #slot-machine {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 40px auto;
+            width: fit-content;
+        }
+
+        #coin-pool {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            color: #fff;
+            z-index: 100;
+        }
+
+        .coin-icon {
+            font-size: 22px;
+            animation: none;
+        }
+
+        #coin-count {
+            font-weight: bold;
+        }
+
+        @keyframes coinBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .coin-highlight {
+            animation: coinBounce 0.5s ease infinite;
+        }
+
+        .flying-coin {
+            position: absolute;
+            font-size: 20px;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        .column {
+            width: 80px;
+            height: 400px;
+            overflow: hidden;
+            border: 2px solid #555;
+            background: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .slot {
+            width: 100%;
+            height: 80px;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: slide 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        @keyframes slide {
+            from {
+                transform: translateY(-20px);
+                opacity: 0.5;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            background: #00bcd4;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0097a7;
+        }
+
+        .slot:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            background: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
+            transform: translateY(-5px);
+            opacity: 0.9;
+        }
+
+        .highlight {
+            animation: blink 0.6s infinite;
+            background: #ffeb3b;
+            border-radius: 6px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #upgrade-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .panel-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .skip-button, .hide-button {
+            padding: 8px 16px;
+            background: #666;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .skip-button:hover, .hide-button:hover {
+            background: #888;
+        }
+
+        #show-upgrade-button {
+            margin-left: 10px;
+            padding: 8px 16px;
+            background: #4a90e2;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #show-upgrade-button:hover {
+            background: #3a80d2;
+        }
+
+        #upgrade-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .upgrade-card {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            width: 150px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+
+        .upgrade-card:hover {
+            transform: scale(1.05);
+            background: #555;
+        }
+
+        .upgrade-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<!--<h1>🎰 Slots 游戏</h1>-->
+<div id="coin-pool">
+    <div class="coin-icon">💰</div>
+    <span id="coin-count">0</span>
+</div>
+<div id="slot-machine">
+    <div class="column" id="col-0" data-index="0"></div>
+    <div class="column" id="col-1" data-index="1"></div>
+    <div class="column" id="col-2" data-index="2"></div>
+    <div class="column" id="col-3" data-index="3"></div>
+    <div class="column" id="col-4" data-index="4"></div>
+</div>
+<div id="upgrade-panel">
+    <h2>🎁 选择一个构筑加成</h2>
+    <div id="upgrade-options"></div>
+    <div class="panel-buttons">
+        <button class="skip-button" onclick="giveUpgrade()">跳过选择</button>
+        <button class="hide-button" onclick="hideUpgradePanel()">隐藏面板</button>
+    </div>
+</div>
+
+<!-- 游戏主界面添加显示构筑面板按钮 -->
+<div class="game-controls">
+    <button id="start-button" onclick="startSlots()">开始滚动</button>
+    <button id="show-upgrade-button" onclick="toggleUpgradePanel()" style="display: none;">选择奖励</button>
+</div>
+
+<script>
+    // 定义图标类别枚举
+    const IconCategory = {
+        WEAPON: 'WEAPON',           // 武器装备类
+        CLASS: 'CLASS',            // 职业类
+        STATUS: 'STATUS',          // 状态效果类
+        WEATHER: 'WEATHER',        // 天气环境类
+        ANIMAL: 'ANIMAL',          // 动物伙伴类
+        BUILDING: 'BUILDING',      // 建筑设施类
+        PLANT: 'PLANT',           // 植物资源类
+        MAGIC: 'MAGIC',           // 魔法元素类
+        ITEM: 'ITEM',             // 道具消耗品
+        TREASURE: 'TREASURE',      // 宝物财富类
+        BUFF: 'BUFF',             // 效果增益类
+        ABILITY: 'ABILITY',        // 特殊能力类
+        FESTIVAL: 'FESTIVAL',      // 节日庆典类
+        ZODIAC: 'ZODIAC',         // 星座符号类
+        MUSIC: 'MUSIC',           // 音乐艺术类
+        VEHICLE: 'VEHICLE',        // 交通工具类
+        GEM: 'GEM',               // 水晶宝石类
+        RUNE: 'RUNE',             // 魔法符文类
+        TECH: 'TECH',             // 科技装备类
+        MARINE: 'MARINE',         // 海洋生物类
+        MYTH: 'MYTH',             // 神话生物类
+        TIME: 'TIME'              // 时空元素类
+    };
+
+    // 定义稀有度枚举
+    const Rarity = {
+        COMMON: '优秀',           // 优秀 (2-3金币)
+        RARE: '精良',            // 精良 (4-6金币)
+        EPIC: '史诗',            // 史诗 (7-9金币)
+        LEGENDARY: '传说'         // 传说 (15-20金币)
+    };
+
+    const iconData = [
+        // 武器装备类
+        { icon: '🗡️', tip: '勇气之刃', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        { icon: '🛡️', tip: '勇气之盾', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        { icon: '🏹', tip: '勇气之弓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
+        { icon: '⚔️', tip: '英勇打击', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
+        { icon: '🪓', tip: '一往无前', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
+        { icon: '🗝️', tip: '开锁:开启相邻箱子(消耗)', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.ITEM },
+        { icon: '🔫', tip: '狙杀', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        { icon: '🗡️', tip: '匕首', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+
+        // 职业类
+        { icon: '🧙‍♂️', tip: '法师', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.CLASS },
+        { icon: '🦹‍♂️', tip: '刺客', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.CLASS },
+        { icon: '🧝‍♀️', tip: '射手', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.CLASS },
+        { icon: '🦸‍♂️', tip: '战士', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.CLASS },
+        { icon: '🧟', tip: '亡灵', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.CLASS },
+        { icon: '👻', tip: '幽灵', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.CLASS },
+        { icon: '🧜‍♀️', tip: '海族', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.CLASS },
+        { icon: '🤖', tip: '机械', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.CLASS },
+
+        // 状态效果类
+        { icon: '💤', tip: '睡眠', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        { icon: '🤢', tip: '中毒', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        { icon: '💘', tip: '魅惑', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.STATUS },
+        { icon: '💢', tip: '愤怒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        { icon: '😱', tip: '恐惧', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
+        { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
+        { icon: '🦾', tip: '强化', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.STATUS },
+        { icon: '🛸', tip: '浮空', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
+
+        // 天气环境类
+        { icon: '🌞', tip: '晴天', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.WEATHER },
+        { icon: '🌧️', tip: '雨天', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.WEATHER },
+        { icon: '⛈️', tip: '雷暴', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEATHER },
+        { icon: '🌪️', tip: '龙卷风', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEATHER },
+        { icon: '❄️', tip: '暴雪', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEATHER },
+        { icon: '🌫️', tip: '迷雾', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEATHER },
+        { icon: '🌋', tip: '火山', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.WEATHER },
+        { icon: '🏔️', tip: '冰山', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEATHER },
+        { icon: '☁️', tip: '云朵', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
+
+        // 动物伙伴类
+        { icon: '🐉', tip: '巨龙', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
+        { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+        { icon: '🐺', tip: '狼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
+        { icon: '🦅', tip: '雄鹰', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ANIMAL },
+        { icon: '🦁', tip: '狮子', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ANIMAL },
+        { icon: '🐯', tip: '猛虎', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.ANIMAL },
+        { icon: '🦄', tip: '独角兽', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
+        { icon: '🐎', tip: '战马', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+
+        // 建筑设施类
+        { icon: '🏰', tip: '城堡', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.BUILDING },
+        { icon: '⛪', tip: '教堂', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.BUILDING },
+        { icon: '🏯', tip: '要塞', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.BUILDING },
+        { icon: '🗼', tip: '瞭望塔', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.BUILDING },
+        { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
+        { icon: '⛲', tip: '喷泉', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUILDING },
+        { icon: '🎪', tip: '帐篷', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.BUILDING },
+        { icon: '🏺', tip: '祭坛', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.BUILDING },
+
+        // 植物资源类
+        { icon: '🌳', tip: '古树', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.PLANT },
+        { icon: '🌺', tip: '魔花', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.PLANT },
+        { icon: '🍄', tip: '蘑菇', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🌿', tip: '药草', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🎋', tip: '竹子', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.PLANT },
+        { icon: '🌵', tip: '仙人掌', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🍀', tip: '幸运草', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🌸', tip: '樱花', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.PLANT },
+
+        // 魔法元素类
+        { icon: '🔥', tip: '火焰伤害', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MAGIC },
+        { icon: '❄️', tip: '冰冻效果', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MAGIC },
+        { icon: '⚡', tip: '闪电连击', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MAGIC },
+        { icon: '💧', tip: '水流冲击', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MAGIC },
+        { icon: '🌈', tip: '彩虹祝福', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MAGIC },
+        { icon: '💫', tip: '魔法星尘', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MAGIC },
+        { icon: '🌟', tip: '星光祝福', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MAGIC },
+        { icon: '🌀', tip: '空间扭曲', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.MAGIC },
+        { icon: '☄️', tip: '陨石坠落', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.MAGIC },
+
+        // 道具消耗品
+        { icon: '🍎', tip: '恢复生命', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.ITEM },
+        { icon: '🧪', tip: '神秘药水', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.ITEM },
+        { icon: '📜', tip: '法术卷轴', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ITEM },
+        { icon: '💊', tip: '治疗药剂', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.ITEM },
+        { icon: '🧉', tip: '能量饮品', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.ITEM },
+        { icon: '🔮', tip: '预言水晶', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ITEM },
+
+        // 宝物财富类
+        { icon: '💰', tip: '金币', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TREASURE },
+        { icon: '💎', tip: '稀有宝石', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
+        { icon: '👑', tip: '皇冠宝物', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.TREASURE },
+        { icon: '💍', tip: '魔法戒指', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
+        { icon: '🏆', tip: '荣誉奖杯', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TREASURE },
+        { icon: '📦', tip: '神秘宝箱', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TREASURE },
+        { icon: '🔑', tip: '宝藏钥匙', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
+
+        // 效果增益类
+        { icon: '🎯', tip: '精准打击', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.BUFF },
+        { icon: '🧲', tip: '磁力吸收', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUFF },
+        { icon: '🦾', tip: '机械强化', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.BUFF },
+        { icon: '🎭', tip: '伪装效果', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.BUFF },
+        { icon: '👁️', tip: '真实视觉', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.BUFF },
+        { icon: '🛡️', tip: '护盾加成', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.BUFF },
+        { icon: '⚔️', tip: '攻击强化', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.BUFF },
+        { icon: '💥', tip: '爆炸增幅', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.BUFF },
+
+        // 特殊能力类
+        { icon: '🌀', tip: '瞬间移动', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
+        { icon: '🎲', tip: '随机效果', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
+        { icon: '🎮', tip: '技能强化', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
+        { icon: '🃏', tip: '复制能力', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
+        { icon: '🦸', tip: '英雄模式', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
+        { icon: '🧙', tip: '召唤法师', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
+        { icon: '🦹', tip: '反派技能', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
+        { icon: '🧞', tip: '召唤精灵', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
+
+        // 节日庆典类
+        { icon: '🎄', tip: '圣诞树', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.FESTIVAL },
+        { icon: '🏮', tip: '红灯笼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎋', tip: '七夕竹', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '🎭', tip: '狂欢面具', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎪', tip: '嘉年华', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎨', tip: '彩绘', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+
+        // 星座符号类
+        { icon: '♈', tip: '白羊座', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
+        { icon: '♉', tip: '金牛座', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
+        { icon: '♊', tip: '双子座', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
+        { icon: '♋', tip: '巨蟹座', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
+        { icon: '♌', tip: '狮子座', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
+        { icon: '♍', tip: '处女座', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
+        { icon: '♎', tip: '天秤座', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
+        { icon: '♏', tip: '天蝎座', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
+
+        // 音乐艺术类
+        { icon: '🎸', tip: '吉他', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MUSIC },
+        { icon: '🎻', tip: '小提琴', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MUSIC },
+        { icon: '🎹', tip: '钢琴', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
+        { icon: '🎺', tip: '小号', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MUSIC },
+        { icon: '🥁', tip: '战鼓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
+        { icon: '🎶', tip: '旋律', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MUSIC },
+        { icon: '🎵', tip: '音符', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
+        { icon: '🎼', tip: '乐谱', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
+
+        // 交通工具类
+        { icon: '🚗', tip: '跑车', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.VEHICLE },
+        { icon: '✈️', tip: '飞机', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🚲', tip: '自行车', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.VEHICLE },
+        { icon: '🛶', tip: '独木舟', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
+        { icon: '🚤', tip: '快艇', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
+        { icon: '🛸', tip: '飞碟', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🦄', tip: '独角兽', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+
+        // 水晶宝石类
+        { icon: '💎', tip: '钻石', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
+        { icon: '🔷', tip: '蓝宝石', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '♦️', tip: '红宝石', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🟡', tip: '黄宝石', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🟣', tip: '紫水晶', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.GEM },
+        { icon: '⬜', tip: '普通矿石', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
+        { icon: '🔶', tip: '琥珀', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
+        { icon: '🔹', tip: '水晶', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.GEM },
+
+        // 魔法符文类
+        { icon: '✡️', tip: '六芒星', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.RUNE },
+        { icon: '🕯️', tip: '魔法烛台', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.RUNE },
+        { icon: '⚜️', tip: '圣印', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.RUNE },
+        { icon: '🔯', tip: '法阵', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.RUNE },
+        { icon: '☯️', tip: '阴阳符', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.RUNE },
+        { icon: '⚛️', tip: '元素符文', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.RUNE },
+        { icon: '🔮', tip: '预言符文', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.RUNE },
+        { icon: '📜', tip: '古代卷轴', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.RUNE },
+
+        // 科技装备类
+        { icon: '⚡', tip: '能源核心', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🔋', tip: '高能电池', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.TECH },
+        { icon: '💻', tip: '终端设备', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🎮', tip: '控制器', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '📱', tip: '智能设备', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '🛰️', tip: '卫星模块', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
+        { icon: '🤖', tip: '机器人', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
+        { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
+
+        // 海洋生物类
+        { icon: '🐋', tip: '巨鲸', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
+        { icon: '🦈', tip: '鲨鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🦀', tip: '螃蟹', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐠', tip: '热带鱼', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+
+        // 神话生物类
+        { icon: '🐉', tip: '巨龙', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🦄', tip: '独角兽', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🧜', tip: '美人鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+        { icon: '🧚', tip: '精灵', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+        { icon: '🧞', tip: '灯神', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🧛', tip: '吸血鬼', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+        { icon: '👹', tip: '恶魔', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MYTH },
+        { icon: '👻', tip: '幽灵', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MYTH },
+
+        // 时空元素类
+        { icon: '⌛', tip: '时之沙', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
+        { icon: '🕰️', tip: '时钟', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '⏳', tip: '沙漏', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '⏰', tip: '闹钟', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TIME },
+        { icon: '🌀', tip: '时间漩涡', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
+        { icon: '🌌', tip: '星空', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '🌠', tip: '流星', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TIME },
+        { icon: '🌙', tip: '月光', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TIME }
+    ];
+
+    let isPanelVisible = false;
+
+    function toggleUpgradePanel() {
+        const panel = document.getElementById('upgrade-panel');
+        isPanelVisible = !isPanelVisible;
+        panel.style.display = isPanelVisible ? 'block' : 'none';
+    }
+
+    function hideUpgradePanel() {
+        isPanelVisible = false;
+        document.getElementById('upgrade-panel').style.display = 'none';
+        document.getElementById('show-upgrade-button').style.display = 'block';
+    }
+
+    function giveUpgrade() {
+        hasSelectedUpgrade = true; // 标记已完成选择
+        document.getElementById('show-upgrade-button').style.display = 'none';
+        isPanelVisible = false;
+        document.getElementById('upgrade-panel').style.display = 'none';
+        document.body.classList.remove('upgrade-panel-visible'); // 添加这行
+        clearNoticeChoose();
+    }
+
+    function showUpgradeChoices() {
+        const panel = document.getElementById('upgrade-panel');
+        const container = document.getElementById('upgrade-options');
+        container.innerHTML = '';
+        isPanelVisible = true;
+        panel.style.display = 'block';
+
+        // 添加这行：给 body 添加类名以控制金币提示的显示
+        document.body.classList.add('upgrade-panel-visible');
+        document.getElementById('show-upgrade-button').style.display = 'none';
+
+
+        // 从 iconData 中随机选择3个不重复的元素
+        const selected = [];
+        while (selected.length < 3) {
+            const rand = iconData[Math.floor(Math.random() * iconData.length)];
+            if (!selected.some(item => item.icon === rand.icon)) {
+                selected.push(rand);
+            }
+        }
+
+        selected.forEach(icon => {
+            const card = document.createElement('div');
+            card.className = 'upgrade-card';
+            card.innerHTML = `
+                <div class="icon">${icon.icon}</div>
+                <h3>${icon.rarity}</h3>
+                <p>${icon.tip}:获得金币${icon.baseCoins}</p>
+            `;
+            card.onclick = () => {
+                handCards.push(icon);
+                hasSelectedUpgrade = true; // 标记已完成选择
+                giveUpgrade();
+            };
+            container.appendChild(card);
+        });
+    }
+
+    const columns = Array.from({ length: 5 }, (_, i) => document.getElementById(`col-${i}`));
+    const rows = 5;
+
+    // 将 handCards 改成对象数组
+    let handCards = [
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
+        { icon: '🎵', tip: '音符', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
+        { icon: '🎼', tip: '乐谱', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
+        { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
+        { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+    ];
+
+    function fillColumn(col) {
+        col.innerHTML = '';
+        const colIndex = parseInt(col.dataset.index);
+
+        // 如果是第一列,创建临时栈并打乱
+        if(colIndex === 0) {
+            // 创建25个格子的数组
+            let slots = new Array(25).fill(null);
+
+            // 复制手牌数组创建临时栈
+            let tempStack = [...handCards];
+
+            // Fisher-Yates 洗牌算法打乱临时栈
+            for(let i = tempStack.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempStack[i], tempStack[j]] = [tempStack[j], tempStack[i]];
+            }
+
+            // 随机分配临时栈中的对象到格子
+            let availableSlots = [...Array(25).keys()]; // 0-24的数组
+            tempStack.forEach(card => {
+                // 随机选择一个可用格子
+                const randomIndex = Math.floor(Math.random() * availableSlots.length);
+                const slotIndex = availableSlots[randomIndex];
+
+                // 将卡牌放入选中的格子
+                slots[slotIndex] = card;
+
+                // 从可用格子中移除已使用的格子
+                availableSlots.splice(randomIndex, 1);
+            });
+
+            // 保存打乱后的结果供其他列使用
+            window.currentSlots = slots;
+        }
+
+        // 渲染当前列的格子
+        for (let i = 0; i < rows; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.setAttribute('data-row', i);
+            slot.setAttribute('data-col', colIndex);
+
+            const slotIndex = i * columns.length + colIndex;
+            const card = window.currentSlots[slotIndex];
+
+            if (card) {
+                // 修改slot的内部结构
+                slot.innerHTML = `
+                <div class="coin-indicator" title="基础金币">+${card.baseCoins}</div>
+                ${card.icon}
+            `;
+                slot.setAttribute('data-tooltip', card.tip);
+            } else {
+                slot.textContent = '';
+                slot.setAttribute('data-tooltip', '空白');
+            }
+
+            col.appendChild(slot);
+        }
+    }
+
+    let hasSelectedUpgrade = false; // 添加选择状态标记
+
+    function startSlots() {
+        // 如果未完成上一轮选择,禁止开始
+        if(!hasSelectedUpgrade) {
+            noticeChoose();
+            return;
+        }
+
+        if (remainingSlots <= 0) {
+            checkChallengeResult();
+            return;
+        }
+
+        remainingSlots--;
+        totalSlots++;
+        updateRemainingSlots();
+
+        clearHighlights();
+        hasSelectedUpgrade = false; // 重置选择状态
+
+        columns.forEach((col, index) => {
+            let interval = setInterval(() => fillColumn(col), 100);
+            setTimeout(() => {
+                clearInterval(interval);
+                fillColumn(col);
+                if (index === columns.length - 1) {
+                    setTimeout(() => {
+                        checkWin();
+                        setTimeout(showUpgradeChoices, 500);
+                    }, 500);
+                }
+            }, 1000 + index * 500);
+        });
+    }
+
+    function noticeChoose(){
+        const panel = document.getElementById('upgrade-panel');
+        const skipButton = panel.querySelector('.skip-button');
+        // 使用直接样式设置
+        panel.style.border = '3px solid #4a90e2';
+        panel.style.boxShadow = '0 0 20px #4a90e2';
+        panel.style.transition = 'all 0.3s ease';
+
+        skipButton.style.background = '#4a90e2';
+        skipButton.style.transform = 'scale(1.1)';
+        skipButton.style.transition = 'all 0.3s ease';
+    }
+
+    function clearNoticeChoose(){
+        const panel = document.getElementById('upgrade-panel');
+        const skipButton = panel.querySelector('.skip-button');
+        // 使用直接样式设置
+        panel.style.border = '';
+        panel.style.boxShadow = '';
+        panel.style.transition = '';
+
+        skipButton.style.background = '';
+        skipButton.style.transform = '';
+        skipButton.style.transition = '';
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+    }
+
+    function checkWin() {
+        const grid = [];
+        for (let row = 0; row < rows; row++) {
+            const rowElements = columns.map(col => col.children[row]);
+            grid.push(rowElements);
+        }
+
+        const highlightGroups = [];
+        let delay = 0;
+
+        // 遍历所有格子，处理金币效果
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns.length; col++) {
+                const slot = grid[row][col];
+                // 获取槽位对应的索引和卡牌数据
+                const slotIndex = row * columns.length + col;
+                const card = window.currentSlots[slotIndex];
+
+                if (card && card.baseCoins) {
+                    // 设置延迟，使金币动画依次触发
+                    setTimeout(() => {
+                        addCoins(card.baseCoins, slot);
+                    }, delay);
+                    delay += 100; // 每个金币动画间隔100ms
+                }
+
+                // 原有的匹配检查逻辑
+                if (slot.textContent == '') {
+                    continue;
+                }
+                const centerIcon = slot.textContent;
+                const group = [slot];
+
+                const directions = [
+                    [-1, -1], [-1, 0], [-1, 1],
+                    [0, -1],          [0, 1],
+                    [1, -1], [1, 0], [1, 1]
+                ];
+
+                directions.forEach(([dy, dx]) => {
+                    const newRow = row + dy;
+                    const newCol = col + dx;
+                    if (
+                        newRow >= 0 && newRow < rows &&
+                        newCol >= 0 && newCol < columns.length
+                    ) {
+                        const neighbor = grid[newRow][newCol];
+                        if (neighbor.textContent === centerIcon) {
+                            group.push(neighbor);
+                        }
+                    }
+                });
+
+                if (group.length >= 3) {
+                    highlightGroups.push(group);
+                }
+            }
+        }
+
+        // 处理匹配组的高亮效果
+        let highlightDelay = delay; // 在所有金币动画完成后再显示高亮
+        highlightGroups.forEach(group => {
+            setTimeout(() => {
+                group.forEach(el => el.classList.add('highlight'));
+            }, highlightDelay);
+            highlightDelay += 800;
+        });
+    }
+
+    // 金币池代码
+    let coinCount = 0;
+
+    // 初始化金币池
+    function initCoinPool() {
+        updateCoinDisplay();
+    }
+
+    // 更新金币显示
+    function updateCoinDisplay() {
+        document.getElementById('coin-count').textContent = coinCount;
+    }
+
+    // 添加金币并显示动画
+    function addCoins(amount, sourceElement) {
+        // 高亮金币池图标
+        const coinIcon = document.querySelector('.coin-icon');
+        coinIcon.classList.add('coin-highlight');
+
+        // 在指定时间后移除高亮
+        setTimeout(() => {
+            coinIcon.classList.remove('coin-highlight');
+        }, 1500);
+
+        // 创建飞行金币动画
+        if (sourceElement) {
+            createFlyingCoin(sourceElement);
+        }
+
+        // 增加金币数量
+        coinCount += amount;
+        updateCoinDisplay();
+    }
+
+    // 创建飞向金币池的金币动画
+    function createFlyingCoin(sourceElement) {
+        const coinPool = document.getElementById('coin-pool');
+        const flyingCoin = document.createElement('div');
+        flyingCoin.className = 'flying-coin';
+        flyingCoin.textContent = '💰';
+        document.body.appendChild(flyingCoin);
+
+        // 获取起始位置和目标位置
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const targetRect = coinPool.getBoundingClientRect();
+
+        // 设置金币初始位置
+        flyingCoin.style.left = `${sourceRect.left + sourceRect.width/2}px`;
+        flyingCoin.style.top = `${sourceRect.top + sourceRect.height/2}px`;
+
+        // 动画目标位置
+        const targetX = targetRect.left + targetRect.width/2;
+        const targetY = targetRect.top + targetRect.height/2;
+
+        // 使用Web Animations API创建飞行动画
+        flyingCoin.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${targetX - sourceRect.left - sourceRect.width/2}px,
+                                ${targetY - sourceRect.top - sourceRect.height/2}px) scale(0.5)`,
+                opacity: 0 }
+        ], {
+            duration: 800,
+            easing: 'ease-out'
+        }).onfinish = () => {
+            flyingCoin.remove();
+        };
+    }
+
+    // 示例：当击中敌人或获得奖励时调用
+    function onEnemyDefeated(enemyElement) {
+        const rewardAmount = Math.floor(Math.random() * 5) + 1; // 1-5枚金币
+        addCoins(rewardAmount, enemyElement);
+    }
+
+    //图鉴代码
+    // 在 head 的 style 标签中添加以下样式
+    // 在 body 的最合适位置添加以下按钮和容器
+    const codexStyles = `
+    #codex-button {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        padding: 10px 20px;
+        background: #4a90e2;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    #codex-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1002;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    #codex-content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .codex-category {
+        color: #4a90e2;
+        font-size: 24px;
+        margin-top: 30px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #4a90e2;
+    }
+
+    .codex-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        padding: 20px 0;
+    }
+
+    .codex-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        color: white;
+        transition: transform 0.2s;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .codex-tip {
+        display: none;
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        white-space: nowrap;
+        z-index: 1003;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .codex-tip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+    }
+
+    .codex-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .codex-tab {
+        padding: 10px 20px;
+        background: rgba(74, 144, 226, 0.2);
+        border: 2px solid #4a90e2;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .codex-tab.active {
+        background: #4a90e2;
+    }
+
+    .codex-content-section {
+        display: none;
+    }
+
+    .codex-content-section.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    #handcards-section {
+        padding: 20px;
+    }
+
+    .handcards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+    `;
+
+    // 添加 HTML 结构
+    const codexHTML = `
+    <button id="codex-button">📖 图鉴</button>
+    <div id="codex-container">
+        <div id="codex-content"></div>
+    </div>
+    `;
+
+    // 在 script 标签中添加以下 JavaScript 代码
+    function initCodex() {
+        // 添加样式
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = codexStyles;
+        document.head.appendChild(styleSheet);
+
+        // 添加 HTML
+        const div = document.createElement('div');
+        div.innerHTML = codexHTML;
+        document.body.appendChild(div.firstElementChild);
+        document.body.appendChild(div.firstElementChild);
+
+        // 获取DOM元素
+        const codexButton = document.getElementById('codex-button');
+        const codexContainer = document.getElementById('codex-container');
+        const codexContent = document.getElementById('codex-content');
+
+        // 按类别整理图标数据
+        const categories = {};
+        iconData.forEach((item, index) => {
+            let category = '';
+            if (index < 8) {
+                category = '武器装备类';
+            } else if (index < 16) {
+                category = '职业类';
+            } else if (index < 24) {
+                category = '状态效果类';
+            } else if (index < 32) {
+                category = '天气环境类';
+            } else if (index < 40) {
+                category = '动物伙伴类';
+            } else if (index < 48) {
+                category = '建筑设施类';
+            } else if (index < 56) {
+                category = '植物资源类';
+            } else if (index < 64) {
+                category = '魔法元素类';
+            } else if (index < 72) {
+                category = '道具消耗品';
+            } else if (index < 80) {
+                category = '宝物财富类';
+            } else if (index < 88) {
+                category = '效果增益类';
+            } else if (index < 96) {
+                category = '特殊能力类';
+            } else if (index < 104) {
+                category = '节日庆典类';
+            } else if (index < 112) {
+                category = '星座符号类';
+            } else if (index < 120) {
+                category = '音乐艺术类';
+            } else if (index < 128) {
+                category = '交通工具类';
+            } else if (index < 136) {
+                category = '水晶宝石类';
+            } else if (index < 144) {
+                category = '魔法符文类';
+            } else if (index < 152) {
+                category = '科技装备类';
+            } else if (index < 160) {
+                category = '海洋生物类';
+            } else if (index < 168) {
+                category = '神话生物类';
+            } else if (index < 176) {
+                category = '时空元素类';
+            }
+
+            if (!categories[category]) {
+                categories[category] = [];
+            }
+            categories[category].push(item);
+        });
+
+        // 绑定按钮点击事件
+        codexButton.addEventListener('click', toggleCodex);
+
+        // 渲染图鉴内容
+        function renderCodex() {
+            codexContent.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="color: white; text-align: center; margin: 0;">图鉴系统</h1>
+            <button id="close-codex" style="
+                padding: 8px 16px;
+                background: #e74c3c;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                cursor: pointer;
+                font-size: 16px;
+                transition: all 0.3s;
+            ">关闭图鉴</button>
+        </div>
+    <div class="codex-tabs">
+        <div class="codex-tab active" data-tab="handcards">当前手牌</div>
+        <div class="codex-tab" data-tab="codex">图鉴大全</div>
+    </div>
+    <div id="handcards-section" class="codex-content-section active">
+        <h2 style="color: white; margin-bottom: 20px;">当前手牌列表</h2>
+        <div class="handcards-grid"></div>
+    </div>
+    <div id="codex-section" class="codex-content-section">
+        <div id="full-codex"></div>
+    </div>
+    `;
+
+            const closeButton = codexContent.querySelector('#close-codex');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    codexContainer.style.display = 'none';
+                });
+
+                closeButton.addEventListener('mouseover', () => {
+                    closeButton.style.background = '#c0392b';
+                });
+                closeButton.addEventListener('mouseout', () => {
+                    closeButton.style.background = '#e74c3c';
+                });
+            }
+
+            // 渲染手牌列表
+            const handcardsGrid = codexContent.querySelector('.handcards-grid');
+            handCards.forEach(card => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'codex-item';
+                itemDiv.innerHTML = `
+            <div class="codex-icon">${card.icon}</div>
+            <div class="codex-tip">${card.tip}</div>
+        `;
+                handcardsGrid.appendChild(itemDiv);
+            });
+
+            // 渲染完整图鉴
+            const fullCodex = codexContent.querySelector('#full-codex');
+            Object.entries(categories).forEach(([category, items]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'codex-category';
+                categoryDiv.textContent = category;
+                fullCodex.appendChild(categoryDiv);
+
+                const grid = document.createElement('div');
+                grid.className = 'codex-grid';
+
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'codex-item';
+                    itemDiv.innerHTML = `
+                <div class="codex-icon">${item.icon}</div>
+                <div class="codex-tip">${item.tip}</div>
+            `;
+                    grid.appendChild(itemDiv);
+                });
+
+                fullCodex.appendChild(grid);
+            });
+
+            // 添加 tab 切换事件
+            const tabs = codexContent.querySelectorAll('.codex-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有 active 类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    codexContent.querySelectorAll('.codex-content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+
+                    // 添加 active 类到当前选中的 tab 和对应内容
+                    tab.classList.add('active');
+                    const targetId = `${tab.dataset.tab}-section`;
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // 添加提示框显示/隐藏逻辑
+            document.querySelectorAll('.codex-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    document.querySelectorAll('.codex-tip').forEach(tip => {
+                        tip.style.display = 'none';
+                    });
+                    const tip = item.querySelector('.codex-tip');
+                    tip.style.display = 'block';
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        // 切换图鉴显示状态
+        function toggleCodex() {
+            const isVisible = codexContainer.style.display === 'block';
+            codexContainer.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                renderCodex();
+            }
+        }
+
+        // 点击空白处关闭图鉴
+        codexContainer.addEventListener('click', (e) => {
+            if (e.target.className == 'codex-grid') {
+                codexContainer.style.display = 'none';
+            }
+        });
+
+        // 绑定按钮点击事件
+        codexButton.addEventListener('click', toggleCodex);
+    }
+
+    // 在 DOMContentLoaded 事件中初始化图鉴
+    document.addEventListener('DOMContentLoaded', () => {
+        initCodex();
+        // 其他初始化代码...
+    });
+    //图鉴代码
+
+    // 金币右上角显示提示
+    const styles = `
+        .coin-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            color: gold;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 修改这里：当面板显示时显示金币提示 */
+        .upgrade-panel-visible .coin-indicator {
+            opacity: 1;
+        }
+
+        .slot:hover .coin-indicator {
+            opacity: 1;
+        }
+
+        .slot.highlight .coin-indicator {
+            background: rgba(0, 0, 0, 0.8);
+        }
+    `;
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+    //挑战目标
+    // 在 coin-pool div 下方添加挑战目标显示区域
+    const challengeHTML = `
+    <div id="challenge-container">
+        <div class="challenge-header">
+            <span>📋 租金挑战</span>
+            <span id="remaining-slots">剩余次数: 5</span>
+        </div>
+        <div id="challenge-list"></div>
+    </div>
+    `;
+
+    // 添加样式
+    const challengeStyles = `
+        #challenge-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            min-width: 200px;
+            z-index: 100;
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .challenge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .challenge-item.active {
+            background: rgba(74, 144, 226, 0.2);
+            border: 1px solid #4a90e2;
+        }
+
+        .challenge-item.completed {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid #27ae60;
+        }
+
+        .challenge-item.failed {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+        }
+    `;
+
+    // 挑战列表数据
+    const challenges = [
+        { slots: 5, coins: 100, completed: false },
+        { slots: 7, coins: 200, completed: false },
+        { slots: 10, coins: 500, completed: false }
+    ];
+
+    let currentChallenge = 0;
+    let remainingSlots = challenges[0].slots;
+    let totalSlots = 0;
+
+    // 初始化挑战系统
+    function initChallengeSystem() {
+        // 添加 HTML 和样式
+        document.body.insertAdjacentHTML('beforeend', challengeHTML);
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = challengeStyles;
+        document.head.appendChild(styleSheet);
+
+        // 渲染挑战列表
+        renderChallenges();
+        updateRemainingSlots();
+    }
+
+    // 渲染挑战列表
+    function renderChallenges() {
+        const list = document.getElementById('challenge-list');
+        list.innerHTML = challenges.map((challenge, index) => `
+        <div class="challenge-item ${index === currentChallenge ? 'active' : ''}
+                                  ${challenge.completed ? 'completed' : ''}">
+            <span>🎯 ${challenge.slots}次抽取</span>
+            <span>💰 ${challenge.coins}金币</span>
+        </div>
+    `).join('');
+    }
+
+    // 更新剩余次数显示
+    function updateRemainingSlots() {
+        document.getElementById('remaining-slots').textContent =
+            `剩余次数: ${remainingSlots}`;
+    }
+
+
+    // 检查挑战结果
+    function checkChallengeResult() {
+        const currentTarget = challenges[currentChallenge];
+
+        if (coinCount >= currentTarget.coins) {
+            // 完成挑战
+            coinCount -= currentTarget.coins;
+            updateCoinDisplay();
+            currentTarget.completed = true;
+            showChallengeComplete();
+
+            // 进入下一个挑战
+            if (currentChallenge < challenges.length - 1) {
+                currentChallenge++;
+                remainingSlots = challenges[currentChallenge].slots;
+                renderChallenges();
+                updateRemainingSlots();
+            } else {
+                showGameComplete();
+            }
+        } else {
+            showGameOver();
+        }
+    }
+
+    // 显示挑战完成消息
+    function showChallengeComplete() {
+        const message = document.createElement('div');
+        message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(39, 174, 96, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        font-size: 24px;
+        z-index: 1000;
+    `;
+        message.textContent = '🎉 成功支付租金！进入下一阶段';
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 2000);
+    }
+
+    // 显示游戏结束消息
+    function showGameOver() {
+        const message = document.createElement('div');
+        message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(231, 76, 60, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        font-size: 24px;
+        z-index: 1000;
+    `;
+        message.textContent = '😢 租金不足，你被赶了出去';
+        document.body.appendChild(message);
+        disableControls();
+    }
+
+    // 显示通关动画
+    function showGameComplete() {
+        const container = document.createElement('div');
+        container.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 1000;
+    `;
+
+        container.innerHTML = `
+        <h1 style="color: gold; font-size: 48px; margin-bottom: 20px;">
+            🎊 恭喜通关！ 🎊
+        </h1>
+        <p style="color: white; font-size: 24px;">
+            你已经成为了一个成功的房东！
+        </p>
+    `;
+
+        document.body.appendChild(container);
+        disableControls();
+    }
+
+    // 禁用游戏控制
+    function disableControls() {
+        document.getElementById('start-button').disabled = true;
+        document.getElementById('show-upgrade-button').disabled = true;
+    }
+
+    // 游戏初始化时调用
+    document.addEventListener('DOMContentLoaded', () => {
+        hasSelectedUpgrade = true; // 第一次运行时允许开始
+        initCoinPool();
+        initChallengeSystem();
+    });
+</script>
+</body>
+</html>
