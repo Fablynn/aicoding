@@ -523,20 +523,42 @@
         isPanelVisible = true;
         panel.style.display = 'block';
 
-        // 添加这行：给 body 添加类名以控制金币提示的显示
         document.body.classList.add('upgrade-panel-visible');
         document.getElementById('show-upgrade-button').style.display = 'none';
 
+        const currentTarget = challenges[currentChallenge];
+        const rarityWeights = [
+            { rarity: Rarity.COMMON, weight: currentTarget.commonChance },
+            { rarity: Rarity.RARE, weight: currentTarget.rareChance },
+            { rarity: Rarity.EPIC, weight: currentTarget.epicChance },
+            { rarity: Rarity.LEGENDARY, weight: currentTarget.legendaryChance }
+        ];
 
-        // 从 iconData 中随机选择3个不重复的元素
+        // 计算权重范围
+        const totalWeight = rarityWeights.reduce((sum, item) => sum + item.weight, 0);
+        const weightedRanges = [];
+        let cumulativeWeight = 0;
+        rarityWeights.forEach(item => {
+            cumulativeWeight += item.weight;
+            weightedRanges.push({ rarity: item.rarity, max: cumulativeWeight / totalWeight });
+        });
+
+        // 随机选择3个奖励
         const selected = [];
         while (selected.length < 3) {
-            const rand = iconData[Math.floor(Math.random() * iconData.length)];
-            if (!selected.some(item => item.icon === rand.icon)) {
-                selected.push(rand);
+            const rand = Math.random();
+            const selectedRarity = weightedRanges.find(range => rand <= range.max).rarity;
+
+            // 从对应稀有度中随机选择一个奖励
+            const options = iconData.filter(icon => icon.rarity === selectedRarity);
+            const randomOption = options[Math.floor(Math.random() * options.length)];
+
+            if (!selected.some(item => item.icon === randomOption.icon)) {
+                selected.push(randomOption);
             }
         }
 
+        // 渲染奖励选项
         selected.forEach(icon => {
             const card = document.createElement('div');
             card.className = 'upgrade-card';
@@ -547,7 +569,7 @@
             `;
             card.onclick = () => {
                 handCards.push(icon);
-                hasSelectedUpgrade = true; // 标记已完成选择
+                hasSelectedUpgrade = true;
                 giveUpgrade();
             };
             container.appendChild(card);
@@ -1297,9 +1319,42 @@
 
     // 挑战列表数据
     const challenges = [
-        { slots: 5, coins: 100, completed: false },
-        { slots: 7, coins: 200, completed: false },
-        { slots: 10, coins: 500, completed: false }
+        {
+            slots: 5,
+            coins: 100,
+            completed: false,
+            commonChance: 70,   // 70% 获得"优秀"品质奖励的概率
+            rareChance: 25,    // 25% 获得"精良"品质奖励的概率
+            epicChance: 5,    // 5% 获得"史诗"品质奖励的概率
+            legendaryChance: 0   // 0% 获得"传说"品质奖励的概率
+        },
+        {
+            slots: 7,
+            coins: 200,
+            completed: false,
+            commonChance: 50,   // 50% 获得"优秀"品质奖励的概率
+            rareChance: 35,    // 35% 获得"精良"品质奖励的概率
+            epicChance: 13,    // 13% 获得"史诗"品质奖励的概率
+            legendaryChance: 2 // 2% 获得"传说"品质奖励的概率
+        },
+        {
+            slots: 10,
+            coins: 500,
+            completed: false,
+            commonChance: 30,   // 30% 获得"优秀"品质奖励的概率
+            rareChance: 45,     // 40% 获得"精良"品质奖励的概率
+            epicChance: 20,     // 20% 获得"史诗"品质奖励的概率
+            legendaryChance: 5  // 10% 获得"传说"品质奖励的概率
+        },
+        {
+            slots: 13,
+            coins: 1000,
+            completed: false,
+            commonChance: 0,
+            rareChance: 50,     // 40% 获得"精良"品质奖励的概率
+            epicChance: 40,     // 20% 获得"史诗"品质奖励的概率
+            legendaryChance: 10  // 10% 获得"传说"品质奖励的概率
+        },
     ];
 
     let currentChallenge = 0;
