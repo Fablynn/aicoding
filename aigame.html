@@ -240,6 +240,9 @@
 <script>
     // 定义图标类别枚举
     const IconCategory = {
+        Items: 'Items',            // 基类 放数值卡牌
+        Box: 'Box',                 // 宝箱类
+        Key: 'Key',                 // 钥匙类
         STATUS: 'STATUS',          // 状态效果类
         WEATHER: 'WEATHER',        // 天气环境类
         ANIMAL: 'ANIMAL',          // 动物伙伴类
@@ -484,34 +487,22 @@
     }
 
     const iconData = [
-        { icon: '🗝️', tip: '开锁:开启相邻箱子(消耗)', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.ITEM },
-
-        // // 冒险类
-        // { icon: '🗡️', tip: '勇气之刃', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🛡️', tip: '勇气之盾', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🏹', tip: '勇气之弓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
-        // { icon: '⚔️', tip: '英勇打击', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
-        // { icon: '🪓', tip: '一往无前', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
-        // { icon: '🔫', tip: '狙杀', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🗡️', tip: '匕首', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🦾', tip: '冒险', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
-
-        // 状态效果类
-        // { icon: '💤', tip: '睡眠', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '🤢', tip: '中毒', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '💘', tip: '魅惑', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.STATUS },
-        // { icon: '💢', tip: '愤怒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '😱', tip: '恐惧', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
-        // { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
+        // 钥匙和宝箱
+        { icon: '🗝️', tip: '开锁', baseCoins: 1,delCoins:0, rarity: Rarity.COMMON, category: IconCategory.Key },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '💼', tip: '精华宝箱', baseCoins: 2,delCoins:50, rarity: Rarity.RARE, category: IconCategory.Box },
+        { icon: '👑', tip: '财富宝箱', baseCoins: 3,delCoins:80, rarity: Rarity.EPIC, category: IconCategory.Box },
+        { icon: '🧳', tip: '传奇宝箱', baseCoins: 5,delCoins:120, rarity: Rarity.LEGENDARY, category: IconCategory.Box },
 
         // 天气环境类
-        { icon: '🌞', tip: '晴天', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
-        { icon: '🌧️', tip: '雨天', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
+        { icon: '🌞', tip: '晴天', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.WEATHER },
+        { icon: '🌧️', tip: '雨天', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.WEATHER },
         { icon: '⛈️', tip: '雷暴', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '🌪️', tip: '龙卷风', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '❄️', tip: '暴雪', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '🌫️', tip: '迷雾', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '☁️', tip: '多云', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
+        { icon: '💧', tip: '水', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.WEATHER },
 
         // 植物资源类
         { icon: '🍎', tip: '苹果', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.PLANT},
@@ -523,7 +514,6 @@
         { icon: '🌵', tip: '仙人掌', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.PLANT },
         { icon: '🍀', tip: '幸运草', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.PLANT },
         { icon: '🌸', tip: '樱花', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.PLANT },
-        { icon: '💧', tip: '水', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.PLANT },
 
         // 动物伙伴类
         { icon: '🐉', tip: '巨龙', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
@@ -565,9 +555,6 @@
         { icon: '💎', tip: '稀有宝石', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
         { icon: '💍', tip: '魔法戒指', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
         { icon: '🏆', tip: '荣誉奖杯', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TREASURE },
-        { icon: '📦', tip: '潘多拉魔盒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TREASURE },
-        { icon: '👑', tip: '皇冠宝物', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.TREASURE },
-        { icon: '🔑', tip: '宝藏钥匙', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TREASURE },
 
         // 节日庆典类
         { icon: '🎄', tip: '圣诞树', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
@@ -588,6 +575,84 @@
         { icon: '🎵', tip: '音符', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
         { icon: '🎼', tip: '乐谱', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
 
+
+        // 交通工具类
+        { icon: '🚗', tip: '跑车', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.VEHICLE },
+        { icon: '✈️', tip: '飞机', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🚲', tip: '自行车', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.VEHICLE },
+        { icon: '🛶', tip: '独木舟', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
+        { icon: '🚤', tip: '快艇', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
+        { icon: '🛸', tip: '飞碟', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '🚁', tip: '直升机', baseCoins: 14, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
+        { icon: '⚡', tip: '能源核心', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🔋', tip: '高能电池', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.TECH },
+        { icon: '💻', tip: '终端设备', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🎮', tip: '控制器', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '📱', tip: '智能设备', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '🛰️', tip: '卫星模块', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
+        { icon: '🤖', tip: '机器人', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
+        { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
+
+        // 水晶宝石类
+        { icon: '💎', tip: '钻石', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
+        { icon: '🔷', tip: '蓝宝石', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '♦️', tip: '红宝石', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🟡', tip: '黄宝石', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🟣', tip: '紫水晶', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.GEM },
+        { icon: '⬜', tip: '普通矿石', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
+        { icon: '🔶', tip: '琥珀', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
+        { icon: '🔹', tip: '水晶', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.GEM },
+
+        // 海洋生物类
+        { icon: '🐋', tip: '巨鲸', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
+        { icon: '🦈', tip: '鲨鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🦀', tip: '螃蟹', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐠', tip: '热带鱼', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🧜', tip: '美人鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+
+        // 神话生物类
+        { icon: '🐉', tip: '巨龙: 天气类牌奖励翻倍', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🦄', tip: '独角兽', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🧚', tip: '精灵', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+        { icon: '🧞', tip: '灯神', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🧛', tip: '吸血鬼', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MYTH },
+        { icon: '👹', tip: '恶魔', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MYTH },
+        { icon: '👻', tip: '幽灵', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MYTH },
+
+        // 时空元素类
+        { icon: '⌛', tip: '时之沙', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
+        { icon: '🕰️', tip: '时钟', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '⏳', tip: '沙漏', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '⏰', tip: '闹钟', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TIME },
+        { icon: '🌀', tip: '时间漩涡', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
+        { icon: '🌌', tip: '星空', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '🌠', tip: '流星', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TIME },
+        { icon: '🌙', tip: '月光', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TIME }
+
+
+
+        // // 冒险类
+        // { icon: '🗡️', tip: '勇气之刃', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        // { icon: '🛡️', tip: '勇气之盾', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        // { icon: '🏹', tip: '勇气之弓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
+        // { icon: '⚔️', tip: '英勇打击', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
+        // { icon: '🪓', tip: '一往无前', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
+        // { icon: '🔫', tip: '狙杀', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        // { icon: '🗡️', tip: '匕首', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
+        // { icon: '🦾', tip: '冒险', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
+
+        // 状态效果类
+        // { icon: '💤', tip: '睡眠', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        // { icon: '🤢', tip: '中毒', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        // { icon: '💘', tip: '魅惑', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.STATUS },
+        // { icon: '💢', tip: '愤怒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        // { icon: '😱', tip: '恐惧', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
+        // { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
         // 效果增益类
         // { icon: '🎯', tip: '精准打击', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.BUFF },
         // { icon: '🧲', tip: '磁力吸收', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUFF },
@@ -630,64 +695,6 @@
         // { icon: '⚛️', tip: '元素符文', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.RUNE },
         // { icon: '🔮', tip: '预言符文', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.RUNE },
         // { icon: '📜', tip: '古代卷轴', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.RUNE },
-
-        // 交通工具类
-        { icon: '🚗', tip: '跑车', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.VEHICLE },
-        { icon: '✈️', tip: '飞机', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
-        { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
-        { icon: '🚲', tip: '自行车', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.VEHICLE },
-        { icon: '🛶', tip: '独木舟', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
-        { icon: '🚤', tip: '快艇', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.VEHICLE },
-        { icon: '🛸', tip: '飞碟', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
-        { icon: '🚁', tip: '直升机', baseCoins: 14, rarity: Rarity.LEGENDARY, category: IconCategory.VEHICLE },
-        { icon: '⚡', tip: '能源核心', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TECH },
-        { icon: '🔋', tip: '高能电池', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.TECH },
-        { icon: '💻', tip: '终端设备', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TECH },
-        { icon: '🎮', tip: '控制器', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TECH },
-        { icon: '📱', tip: '智能设备', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TECH },
-        { icon: '🛰️', tip: '卫星模块', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '🤖', tip: '机器人', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
-
-        // 水晶宝石类
-        { icon: '💎', tip: '钻石', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
-        { icon: '🔷', tip: '蓝宝石', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '♦️', tip: '红宝石', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🟡', tip: '黄宝石', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🟣', tip: '紫水晶', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '⬜', tip: '普通矿石', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔶', tip: '琥珀', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔹', tip: '水晶', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.GEM },
-
-        // 海洋生物类
-        { icon: '🐋', tip: '巨鲸', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
-        { icon: '🦈', tip: '鲨鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MARINE },
-        { icon: '🐙', tip: '章鱼', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MARINE },
-        { icon: '🦀', tip: '螃蟹', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
-        { icon: '🐠', tip: '热带鱼', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
-        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
-        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
-        { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
-        { icon: '🧜', tip: '美人鱼', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.MYTH },
-
-        // 神话生物类
-        { icon: '🐉', tip: '巨龙', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🦄', tip: '独角兽', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🧚', tip: '精灵', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MYTH },
-        { icon: '🧞', tip: '灯神', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🧛', tip: '吸血鬼', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MYTH },
-        { icon: '👹', tip: '恶魔', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MYTH },
-        { icon: '👻', tip: '幽灵', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MYTH },
-
-        // 时空元素类
-        { icon: '⌛', tip: '时之沙', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
-        { icon: '🕰️', tip: '时钟', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TIME },
-        { icon: '⏳', tip: '沙漏', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TIME },
-        { icon: '⏰', tip: '闹钟', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TIME },
-        { icon: '🌀', tip: '时间漩涡', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
-        { icon: '🌌', tip: '星空', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TIME },
-        { icon: '🌠', tip: '流星', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TIME },
-        { icon: '🌙', tip: '月光', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TIME }
     ];
 
     let isPanelVisible = false;
@@ -781,8 +788,15 @@
     const columns = Array.from({ length: 5 }, (_, i) => document.getElementById(`col-${i}`));
     const rows = 5;
 
-    // 将 handCards 改成对象数组
+    // 初始手牌
     let handCards = [
+        { icon: '🗝️', tip: '开锁', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.Key },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
+        { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
@@ -793,7 +807,7 @@
         { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
     ];
 
-    // 修改 fillColumn 函数，使用过滤后的卡牌库
+    // 修改 fillColumn 函数，为格子添加卡牌引用
     function fillColumn(col) {
         col.innerHTML = '';
         const colIndex = parseInt(col.dataset.index);
@@ -841,15 +855,16 @@
             const card = window.currentSlots[slotIndex];
 
             if (card) {
-                // 修改slot的内部结构
                 slot.innerHTML = `
-            <div class="coin-indicator" title="基础金币">+${card.baseCoins}</div>
-            ${card.icon}
-        `;
-                slot.setAttribute('data-tooltip', card.tip);
+                <div class="card-icon">${card.icon}</div>
+                <div class="coin-indicator">+${card.baseCoins}💰</div>
+            `;
+                slot.setAttribute('data-tooltip', `${card.tip} (${card.rarity})`);
+
+                // 在slot元素上存储对卡牌的引用，便于后续访问
+                slot.__card = card;
             } else {
-                slot.textContent = '';
-                slot.setAttribute('data-tooltip', '空白');
+                slot.innerHTML = '';
             }
 
             col.appendChild(slot);
@@ -922,11 +937,19 @@
         document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     }
 
+    // 修改 checkWin 函数，增加宝箱与钥匙相邻时的特殊消除逻辑
     function checkWin() {
         const grid = [];
         for (let row = 0; row < rows; row++) {
-            const rowElements = columns.map(col => col.children[row]);
-            grid.push(rowElements);
+            grid[row] = [];
+            for (let col = 0; col < columns.length; col++) {
+                const slot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+                if (slot && slot.__card) {
+                    grid[row][col] = slot.__card;
+                } else {
+                    grid[row][col] = null;
+                }
+            }
         }
 
         const highlightGroups = [];
@@ -935,48 +958,19 @@
         // 遍历所有格子，处理金币效果
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < columns.length; col++) {
-                const slot = grid[row][col];
-                // 获取槽位对应的索引和卡牌数据
-                const slotIndex = row * columns.length + col;
-                const card = window.currentSlots[slotIndex];
+                const currentCard = grid[row][col];
+                if (!currentCard) continue;
 
-                if (card && card.baseCoins) {
-                    // 设置延迟，使金币动画依次触发
+                // 检查宝箱与钥匙相邻
+                checkKeyBoxPair(grid, row, col, highlightGroups);
+
+                // 获取基础金币
+                const slot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+                if (slot && currentCard) {
                     setTimeout(() => {
-                        addCoins(card.baseCoins, slot);
+                        addCoins(currentCard.baseCoins, slot);
                     }, delay);
-                    delay += 100; // 每个金币动画间隔100ms
-                }
-
-                // 原有的匹配检查逻辑
-                if (slot.textContent == '') {
-                    continue;
-                }
-                const centerIcon = slot.textContent;
-                const group = [slot];
-
-                const directions = [
-                    [-1, -1], [-1, 0], [-1, 1],
-                    [0, -1],          [0, 1],
-                    [1, -1], [1, 0], [1, 1]
-                ];
-
-                directions.forEach(([dy, dx]) => {
-                    const newRow = row + dy;
-                    const newCol = col + dx;
-                    if (
-                        newRow >= 0 && newRow < rows &&
-                        newCol >= 0 && newCol < columns.length
-                    ) {
-                        const neighbor = grid[newRow][newCol];
-                        if (neighbor.textContent === centerIcon) {
-                            group.push(neighbor);
-                        }
-                    }
-                });
-
-                if (group.length >= 3) {
-                    highlightGroups.push(group);
+                    delay += 100;
                 }
             }
         }
@@ -985,11 +979,183 @@
         let highlightDelay = delay; // 在所有金币动画完成后再显示高亮
         highlightGroups.forEach(group => {
             setTimeout(() => {
-                group.forEach(el => el.classList.add('highlight'));
+                group.forEach(pos => {
+                    const slot = document.querySelector(`.slot[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                    if (slot) slot.classList.add('highlight');
+                });
             }, highlightDelay);
-            highlightDelay += 800;
+            highlightDelay += 300;
         });
     }
+
+    // 新增函数：检查宝箱与钥匙相邻
+    function checkKeyBoxPair(grid, row, col, highlightGroups) {
+        const currentCard = grid[row][col];
+        if (!currentCard) return;
+
+        // 检查是否是钥匙
+        if (currentCard.category === IconCategory.Key) {
+            const directions = [
+                { dr: -1, dc: 0 },  // 上
+                { dr: 1, dc: 0 },   // 下
+                { dr: 0, dc: -1 },  // 左
+                { dr: 0, dc: 1 },   // 右
+                { dr: -1, dc: -1 }, // 左上
+                { dr: -1, dc: 1 },  // 右上
+                { dr: 1, dc: -1 },  // 左下
+                { dr: 1, dc: 1 }    // 右下
+            ];
+
+            for (const dir of directions) {
+                const newRow = row + dir.dr;
+                const newCol = col + dir.dc;
+
+                // 检查边界
+                if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= columns.length) {
+                    continue;
+                }
+
+                const adjacentCard = grid[newRow][newCol];
+                if (adjacentCard && adjacentCard.category === IconCategory.Box) {
+                    // 找到钥匙和宝箱相邻的情况
+                    const keySlot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+                    const boxSlot = document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`);
+
+                    // 将这对相邻的卡牌添加到高亮组
+                    highlightGroups.push([
+                        { row, col },
+                        { row: newRow, col: newCol }
+                    ]);
+
+                    // 额外奖励宝箱的 delCoins
+                    const boxCard = adjacentCard;
+                    if (boxCard.delCoins) {
+                        setTimeout(() => {
+                            // 添加额外的金币奖励
+                            addCoins(boxCard.delCoins, boxSlot);
+                            // 显示开锁特效
+                            showUnlockEffect(keySlot, boxSlot);
+                            // 播放开锁音效
+                            playUnlockSound();
+                        }, 500);
+                    }
+
+                    // 从手牌中移除宝箱和钥匙
+                    setTimeout(() => {
+                        // 查找手牌中对应的卡牌
+                        const keyIndex = handCards.findIndex(card =>
+                            card.category === IconCategory.Key && card.icon === currentCard.icon);
+
+                        const boxIndex = handCards.findIndex(card =>
+                            card.category === IconCategory.Box && card.icon === adjacentCard.icon);
+
+                        // 如果找到了，从手牌中移除
+                        if (keyIndex !== -1) {
+                            handCards.splice(keyIndex, 1);
+                        }
+
+                        if (boxIndex !== -1) {
+                            handCards.splice(boxIndex, 1);
+                        }
+
+                        console.log(`已消除钥匙和宝箱：${currentCard.icon} + ${adjacentCard.icon}`);
+                        console.log(`剩余手牌数量：${handCards.length}`);
+                    }, 1000);
+
+                    // 一旦找到匹配，就不需要继续检查其他方向
+                    break;
+                }
+            }
+        }
+    }
+
+    // 显示开锁特效
+    function showUnlockEffect(keySlot, boxSlot) {
+        if (!keySlot || !boxSlot) return;
+
+        // 创建连接线特效
+        const line = document.createElement('div');
+        line.className = 'unlock-line';
+        document.body.appendChild(line);
+
+        // 获取两个元素的位置
+        const keyRect = keySlot.getBoundingClientRect();
+        const boxRect = boxSlot.getBoundingClientRect();
+
+        // 计算线的起点和终点
+        const startX = keyRect.left + keyRect.width / 2;
+        const startY = keyRect.top + keyRect.height / 2;
+        const endX = boxRect.left + boxRect.width / 2;
+        const endY = boxRect.top + boxRect.height / 2;
+
+        // 计算线的长度和角度
+        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+        const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+
+        // 设置线的样式
+        line.style.width = `${length}px`;
+        line.style.left = `${startX}px`;
+        line.style.top = `${startY}px`;
+        line.style.transform = `rotate(${angle}deg)`;
+
+        // 创建开锁提示
+        const unlockText = document.createElement('div');
+        unlockText.className = 'unlock-text';
+        unlockText.textContent = `+${boxSlot.__card.delCoins} 开启宝箱!`;
+        unlockText.style.left = `${(startX + endX) / 2}px`;
+        unlockText.style.top = `${(startY + endY) / 2 - 20}px`;
+        document.body.appendChild(unlockText);
+
+        // 设置动画结束后移除元素
+        setTimeout(() => {
+            line.remove();
+            unlockText.remove();
+        }, 1500);
+    }
+
+    // 播放开锁音效
+    function playUnlockSound() {
+        // 如果你想添加音效，可以在这里实现
+        // const sound = new Audio('unlock-sound.mp3');
+        // sound.play();
+    }
+
+    // 添加开锁特效的样式
+    const unlockStyles = `
+    .unlock-line {
+        position: fixed;
+        height: 3px;
+        background: linear-gradient(90deg, gold, #ffeb3b);
+        transform-origin: left;
+        z-index: 100;
+        animation: unlockPulse 0.8s ease-in-out;
+    }
+
+    .unlock-text {
+        position: fixed;
+        color: gold;
+        font-weight: bold;
+        font-size: 16px;
+        text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        transform: translate(-50%, -50%);
+        z-index: 101;
+        animation: unlockTextFloat 1.5s ease-out;
+        white-space: nowrap;
+    }
+
+    @keyframes unlockPulse {
+        0% { opacity: 0; height: 1px; }
+        50% { opacity: 1; height: 4px; }
+        100% { opacity: 0; height: 2px; }
+    }
+
+    @keyframes unlockTextFloat {
+        0% { opacity: 0; transform: translate(-50%, 0); }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; transform: translate(-50%, -30px); }
+    }
+    `;
 
     // 金币池代码
     let coinCount = 0;
@@ -1688,6 +1854,10 @@
 
     // 游戏初始化时调用
     document.addEventListener('DOMContentLoaded', () => {
+        // 添加开锁特效样式
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = unlockStyles;
+        document.head.appendChild(styleSheet);
         initCoinPool();
         initChallengeSystem();
         initCodex();
