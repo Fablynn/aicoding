@@ -995,6 +995,7 @@
 
         // 检查是否是钥匙
         if (currentCard.category === IconCategory.Key) {
+            // 检查八个方向的相邻格子（包括对角线）
             const directions = [
                 { dr: -1, dc: 0 },  // 上
                 { dr: 1, dc: 0 },   // 下
@@ -1006,6 +1007,10 @@
                 { dr: 1, dc: 1 }    // 右下
             ];
 
+            const foundBoxes = [];  // 存储找到的所有宝箱
+            const keySlot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+
+            // 查找周围所有的宝箱
             for (const dir of directions) {
                 const newRow = row + dir.dr;
                 const newCol = col + dir.dc;
@@ -1017,54 +1022,78 @@
 
                 const adjacentCard = grid[newRow][newCol];
                 if (adjacentCard && adjacentCard.category === IconCategory.Box) {
-                    // 找到钥匙和宝箱相邻的情况
-                    const keySlot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+                    // 找到宝箱
                     const boxSlot = document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`);
+                    foundBoxes.push({
+                        card: adjacentCard,
+                        row: newRow,
+                        col: newCol,
+                        slot: boxSlot
+                    });
+                }
+            }
 
-                    // 将这对相邻的卡牌添加到高亮组
-                    highlightGroups.push([
-                        { row, col },
-                        { row: newRow, col: newCol }
-                    ]);
+            // 如果找到了宝箱，处理所有宝箱
+            if (foundBoxes.length > 0) {
+                // 将钥匙和所有宝箱添加到高亮组
+                const highlightGroup = [{ row, col }]; // 钥匙位置
 
-                    // 额外奖励宝箱的 delCoins
-                    const boxCard = adjacentCard;
-                    if (boxCard.delCoins) {
-                        setTimeout(() => {
-                            // 添加额外的金币奖励
-                            addCoins(boxCard.delCoins, boxSlot);
-                            // 显示开锁特效
-                            showUnlockEffect(keySlot, boxSlot);
-                            // 播放开锁音效
-                            playUnlockSound();
-                        }, 500);
+                // 添加所有宝箱位置
+                foundBoxes.forEach(box => {
+                    highlightGroup.push({ row: box.row, col: box.col });
+                });
+
+                // 添加到高亮组
+                highlightGroups.push(highlightGroup);
+
+                // 处理特效和得分
+                let totalDelCoins = 0;
+                foundBoxes.forEach((box, index) => {
+                    // 累计宝箱的额外奖励
+                    if (box.card.delCoins) {
+                        totalDelCoins += box.card.delCoins;
                     }
 
-                    // 从手牌中移除宝箱和钥匙
+                    // 为每个宝箱显示连接线
                     setTimeout(() => {
-                        // 查找手牌中对应的卡牌
-                        const keyIndex = handCards.findIndex(card =>
-                            card.category === IconCategory.Key && card.icon === currentCard.icon);
+                        showUnlockEffect(keySlot, box.slot);
+                    }, index * 200); // 错开特效显示时间
+                });
 
+                // 显示总共获得的额外奖励
+                if (totalDelCoins > 0) {
+                    setTimeout(() => {
+                        addCoins(totalDelCoins);
+                        showFloatingText(keySlot, `开启${foundBoxes.length}个宝箱! +${totalDelCoins}`);
+                    }, 500);
+                }
+
+                // 从手牌中移除钥匙和所有宝箱
+                setTimeout(() => {
+                    // 移除钥匙
+                    const keyIndex = handCards.findIndex(card =>
+                        card.icon === currentCard.icon &&
+                        card.category === currentCard.category
+                    );
+
+                    if (keyIndex !== -1) {
+                        handCards.splice(keyIndex, 1);
+                    }
+
+                    // 移除所有找到的宝箱
+                    foundBoxes.forEach(box => {
                         const boxIndex = handCards.findIndex(card =>
-                            card.category === IconCategory.Box && card.icon === adjacentCard.icon);
-
-                        // 如果找到了，从手牌中移除
-                        if (keyIndex !== -1) {
-                            handCards.splice(keyIndex, 1);
-                        }
+                            card.icon === box.card.icon &&
+                            card.category === box.card.category
+                        );
 
                         if (boxIndex !== -1) {
                             handCards.splice(boxIndex, 1);
                         }
+                    });
 
-                        console.log(`已消除钥匙和宝箱：${currentCard.icon} + ${adjacentCard.icon}`);
-                        console.log(`剩余手牌数量：${handCards.length}`);
-                    }, 1000);
-
-                    // 一旦找到匹配，就不需要继续检查其他方向
-                    break;
-                }
+                    console.log(`钥匙开启了${foundBoxes.length}个宝箱！剩余手牌数量：${handCards.length}`);
+                }, 1000);
             }
         }
     }
@@ -1098,27 +1127,30 @@
         line.style.top = `${startY}px`;
         line.style.transform = `rotate(${angle}deg)`;
 
-        // 创建开锁提示
+        // 设置动画结束后移除元素
+        setTimeout(() => {
+            line.remove();
+        }, 1500);
+    }
+
+    // 显示浮动文本
+    function showFloatingText(element, text) {
         const unlockText = document.createElement('div');
         unlockText.className = 'unlock-text';
-        unlockText.textContent = `+${boxSlot.__card.delCoins} 开启宝箱!`;
-        unlockText.style.left = `${(startX + endX) / 2}px`;
-        unlockText.style.top = `${(startY + endY) / 2 - 20}px`;
+        unlockText.textContent = text;
+
+        const rect = element.getBoundingClientRect();
+        unlockText.style.left = `${rect.left + rect.width / 2}px`;
+        unlockText.style.top = `${rect.top - 20}px`;
+
         document.body.appendChild(unlockText);
 
         // 设置动画结束后移除元素
         setTimeout(() => {
-            line.remove();
             unlockText.remove();
         }, 1500);
     }
 
-    // 播放开锁音效
-    function playUnlockSound() {
-        // 如果你想添加音效，可以在这里实现
-        // const sound = new Audio('unlock-sound.mp3');
-        // sound.play();
-    }
 
     // 添加开锁特效的样式
     const unlockStyles = `
