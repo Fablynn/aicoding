@@ -504,15 +504,13 @@
 
         // 植物资源类
         { icon: '🌿', tip: '发芽', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.PLANT },
-        { icon: '🌸', tip: '开花', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.PLANT },
-        { icon: '🌻', tip: '向日葵', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.PLANT },
-        { icon: '🌾', tip: '麦穗：提供3食物', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.PLANT },
-        { icon: '🌴', tip: '棕榈树：提供木材3', baseCoins: 3, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
-        { icon: '🌵', tip: '仙人掌：提供1食物', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.PLANT },
-        { icon: '🌲', tip: '松树：提供木材2', baseCoins: 3, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
-        { icon: '🌳', tip: '树木:百分之20概率可以产出蘑菇，百分之20概率可以产出苹果', baseCoins: 3, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
-        { icon: '🍄', tip: '蘑菇：提供2食物', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.PLANT },
-        { icon: '🍎', tip: '苹果: 提供3食物', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.PLANT},
+        { icon: '🌸', tip: '开花', baseCoins: 1, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🌻', tip: '向日葵', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.PLANT },
+        { icon: '🌾', tip: '麦穗', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.PLANT },
+        { icon: '🍎', tip: '苹果', baseCoins: 3, rarity: Rarity.EPIC, category: IconCategory.PLANT},
+        { icon: '🌲', tip: '松树：生产材料2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🌳', tip: '树木: 生产神秘2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🌴', tip: '棕榈树：生产科技2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
 
         // 动物伙伴类
         { icon: '🐭', tip: '老鼠', baseCoins: 2, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
@@ -915,6 +913,14 @@
                 if (index === columns.length - 1) {
                     setTimeout(() => {
                         checkWin();
+
+                        // 处理所有格子的生产效果
+                        const allSlots = document.querySelectorAll('.slot');
+                        allSlots.forEach(slot => {
+                            if (slot.__card) {
+                                processProduction(slot.__card, slot);
+                            }
+                        });
                         setTimeout(showUpgradeChoices, 500);
                     }, 500);
                 }
@@ -2175,6 +2181,7 @@
         growthStyleSheet.textContent = growthStyles;
         document.head.appendChild(growthStyleSheet);
 
+        initResourcePool();
         initCoinPool();
         initChallengeSystem();
         initCodex();
@@ -2189,6 +2196,290 @@
         hasSelectedUpgrade = true;
     });
 
+    // 1. 定义资源池数据结构
+    let resources = {
+        material: 0,   // 材料资源
+        mystery: 0,    // 神秘资源
+        science: 0     // 科技资源
+    };
+
+    // 2. 资源池初始化函数
+    function initResourcePool() {
+        // 创建资源池元素
+        const resourcePool = document.createElement('div');
+        resourcePool.id = 'resource-pool';
+        resourcePool.innerHTML = `
+        <div class="resource-title">珍稀资源</div>
+        <div class="resource" data-type="material">
+            <div class="resource-icon">🧱</div>
+            <div class="resource-count" id="material-count">0</div>
+        </div>
+        <div class="resource" data-type="mystery">
+            <div class="resource-icon">✨</div>
+            <div class="resource-count" id="mystery-count">0</div>
+        </div>
+        <div class="resource" data-type="science">
+            <div class="resource-icon">🔬</div>
+            <div class="resource-count" id="science-count">0</div>
+        </div>
+    `;
+
+        // 添加到页面
+        document.body.appendChild(resourcePool);
+
+        // 添加样式
+        const style = document.createElement('style');
+        style.textContent = `
+        #resource-pool {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .resource-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            color: gold;
+        }
+
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .resource-icon {
+            font-size: 24px;
+        }
+
+        .resource-count {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .resource-highlight {
+            animation: resourceBounce 0.5s ease;
+        }
+
+        .flying-resource {
+            position: fixed;
+            font-size: 20px;
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        @keyframes resourceBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .resource-text {
+            position: fixed;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            transform: translate(-50%, -50%);
+            z-index: 101;
+            animation: resourceTextFloat 1.5s ease-out;
+            white-space: nowrap;
+        }
+
+        @keyframes resourceTextFloat {
+            0% { opacity: 0; transform: translate(-50%, 0); }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -30px); }
+        }
+    `;
+        document.head.appendChild(style);
+
+        // 初始更新资源显示
+        updateResourceDisplay();
+    }
+
+    // 3. 更新资源显示
+    function updateResourceDisplay() {
+        document.getElementById('material-count').textContent = resources.material;
+        document.getElementById('mystery-count').textContent = resources.mystery;
+        document.getElementById('science-count').textContent = resources.science;
+    }
+
+    // 4. 添加资源并显示动画
+    function addResource(type, amount, sourceElement) {
+        if (!type || amount <= 0) return;
+
+        // 更新资源数量
+        resources[type] += amount;
+
+        // 更新显示
+        updateResourceDisplay();
+
+        // 高亮资源图标
+        const resourceElement = document.querySelector(`.resource[data-type="${type}"]`);
+        if (resourceElement) {
+            resourceElement.classList.add('resource-highlight');
+            setTimeout(() => {
+                resourceElement.classList.remove('resource-highlight');
+            }, 500);
+        }
+
+        // 显示资源获取特效
+        if (sourceElement) {
+            showResourceProduction(sourceElement, type);
+            createFlyingResource(type, amount, sourceElement);
+        }
+    }
+
+    // 5. 显示资源生产特效
+    function showResourceProduction(sourceElement, resourceType) {
+        if (!sourceElement) return;
+
+        const resourceText = document.createElement('div');
+        resourceText.className = 'resource-text';
+
+        // 根据资源类型设置文本
+        let emoji = '';
+        let text = '';
+
+        switch (resourceType) {
+            case 'material':
+                emoji = '🧱';
+                text = '材料';
+                break;
+            case 'mystery':
+                emoji = '✨';
+                text = '神秘';
+                break;
+            case 'science':
+                emoji = '🔬';
+                text = '科技';
+                break;
+        }
+
+        resourceText.textContent = `${emoji} ${text}`;
+
+        const rect = sourceElement.getBoundingClientRect();
+        resourceText.style.left = `${rect.left + rect.width / 2}px`;
+        resourceText.style.top = `${rect.top - 20}px`;
+
+        document.body.appendChild(resourceText);
+
+        // 设置动画结束后移除元素
+        setTimeout(() => {
+            resourceText.remove();
+        }, 1500);
+    }
+
+    // 6. 创建飞向资源池的资源动画
+    function createFlyingResource(type, amount, sourceElement) {
+        if (!sourceElement) return;
+
+        // 获取资源图标
+        let emoji = '';
+        switch (type) {
+            case 'material': emoji = '🧱'; break;
+            case 'mystery': emoji = '✨'; break;
+            case 'science': emoji = '🔬'; break;
+        }
+
+        // 创建飞行资源元素
+        const flyingResource = document.createElement('div');
+        flyingResource.className = 'flying-resource';
+        flyingResource.textContent = `${emoji}+${amount}`;
+
+        // 获取起点位置（卡牌中心）
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const startX = sourceRect.left + sourceRect.width / 2;
+        const startY = sourceRect.top + sourceRect.height / 2;
+
+        // 获取目标位置（资源池中对应资源的位置）
+        const targetElement = document.querySelector(`.resource[data-type="${type}"]`);
+        const targetRect = targetElement ? targetElement.getBoundingClientRect() :
+            document.getElementById('resource-pool').getBoundingClientRect();
+        const endX = targetRect.left + targetRect.width / 2;
+        const endY = targetRect.top + targetRect.height / 2;
+
+        // 设置初始位置
+        flyingResource.style.left = `${startX}px`;
+        flyingResource.style.top = `${startY}px`;
+
+        document.body.appendChild(flyingResource);
+
+        // 动画飞向目标
+        const startTime = performance.now();
+        const duration = 800; // 毫秒
+
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // 使用缓动函数使动画更自然
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+            // 计算当前位置（抛物线轨迹）
+            const currentX = startX + (endX - startX) * easeProgress;
+            const currentY = startY + (endY - startY) * easeProgress - Math.sin(easeProgress * Math.PI) * 50;
+
+            flyingResource.style.left = `${currentX}px`;
+            flyingResource.style.top = `${currentY}px`;
+            flyingResource.style.opacity = 1 - Math.pow(progress, 2);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                flyingResource.remove();
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    function processProduction(card, slot) {
+        if (!card || !card.tip) return;
+
+        // 从提示文本中解析生产效果
+        const tip = card.tip || "";
+
+        // 特定提示文本触发特定资源生产
+        if (tip.includes("生产材料") && Math.random() < 0.2) {
+            // 从tip中提取数字作为资源数量，如果没有数字则默认为1
+            const numberMatch = tip.match(/\d+/);
+            const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
+            addResource('material', amount, slot);
+        }
+
+        if (tip.includes("生产神秘") && Math.random() < 0.2) {
+            // 从tip中提取数字作为资源数量，如果没有数字则默认为1
+            const numberMatch = tip.match(/\d+/);
+            const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
+            addResource('mystery', amount, slot);
+        }
+
+        if (tip.includes("生产科技") && Math.random() < 0.2) {
+            // 从tip中提取数字作为资源数量，如果没有数字则默认为1
+            const numberMatch = tip.match(/\d+/);
+            const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
+            addResource('science', amount, slot);
+        }
+    }
 
 
 </script>
