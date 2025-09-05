@@ -683,7 +683,7 @@
         { icon: '⛪', tip: '教堂', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUILDING },
         { icon: '🏰', tip: '城堡', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.BUILDING },
         { icon: '🏯', tip: '要塞', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.BUILDING },
-        { icon: '🗽', tip: '神像：信仰', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.BUILDING },
+        { icon: '🗽', tip: '神像', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.BUILDING },
 
         // 魔法元素类
         // { icon: '🔥', tip: '火焰伤害', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MAGIC },
@@ -943,12 +943,6 @@
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
-        { icon: '🐈', tip: '猫咪：猫鼠游戏', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐭', tip: '老鼠：猫鼠游戏', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐈', tip: '猫咪：猫鼠游戏', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐭', tip: '老鼠：猫鼠游戏', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐈', tip: '猫咪：猫鼠游戏', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐭', tip: '老鼠：猫鼠游戏', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
         { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
@@ -959,37 +953,74 @@
         { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
     ];
 
-    // 修改 fillColumn 函数，为格子添加卡牌引用
+    // 修改 fillColumn 函数，添加建筑固定逻辑
     function fillColumn(col) {
         col.innerHTML = '';
         const colIndex = parseInt(col.dataset.index);
 
-        // 如果是第一列,创建临时栈并打乱
+        // 如果是第一列，创建临时栈并打乱
         if(colIndex === 0) {
             // 创建25个格子的数组
             let slots = new Array(25).fill(null);
 
-            // 使用过滤后的卡牌库而不是直接使用 handCards
+            // 使用过滤后的卡牌库
             let tempStack = [...handCards];
 
-            // Fisher-Yates 洗牌算法打乱临时栈
+            // 记录当前所有建筑的位置
+            let buildingPositions = [];
+            document.querySelectorAll('.slot').forEach(slot => {
+                if (slot.__card && slot.__card.category === IconCategory.BUILDING) {
+                    const row = parseInt(slot.dataset.row);
+                    const col = parseInt(slot.dataset.col);
+                    buildingPositions.push({
+                        row: row,
+                        col: col,
+                        card: slot.__card
+                    });
+                }
+            });
+
+            // 先将建筑放回原位置
+            buildingPositions.forEach(building => {
+                const slotIndex = building.row * columns.length + building.col;
+                slots[slotIndex] = building.card;
+
+                // 从临时栈中移除该建筑卡牌
+                const buildingIndex = tempStack.findIndex(card =>
+                    card.icon === building.card.icon &&
+                    card.category === building.card.category
+                );
+                if (buildingIndex !== -1) {
+                    tempStack.splice(buildingIndex, 1);
+                }
+            });
+
+            // Fisher-Yates 洗牌算法打乱剩余卡牌
             for(let i = tempStack.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [tempStack[i], tempStack[j]] = [tempStack[j], tempStack[i]];
             }
 
-            // 随机分配临时栈中的对象到格子
-            let availableSlots = [...Array(25).keys()]; // 0-24的数组
+            // 随机分配剩余卡牌到空格子
+            let availableSlots = [];
+            for(let i = 0; i < 25; i++) {
+                if(slots[i] === null) {
+                    availableSlots.push(i);
+                }
+            }
+
             tempStack.forEach(card => {
-                // 随机选择一个可用格子
-                const randomIndex = Math.floor(Math.random() * availableSlots.length);
-                const slotIndex = availableSlots[randomIndex];
+                if(availableSlots.length > 0) {
+                    // 随机选择一个可用格子
+                    const randomIndex = Math.floor(Math.random() * availableSlots.length);
+                    const slotIndex = availableSlots[randomIndex];
 
-                // 将卡牌放入选中的格子
-                slots[slotIndex] = card;
+                    // 将卡牌放入选中的格子
+                    slots[slotIndex] = card;
 
-                // 从可用格子中移除已使用的格子
-                availableSlots.splice(randomIndex, 1);
+                    // 从可用格子中移除已使用的格子
+                    availableSlots.splice(randomIndex, 1);
+                }
             });
 
             // 保存打乱后的结果供其他列使用
@@ -1008,12 +1039,17 @@
 
             if (card) {
                 slot.innerHTML = `
-                <div class="card-icon">${card.icon}</div>
-                <div class="coin-indicator">+${card.baseCoins}💰</div>
-            `;
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="coin-indicator">+${card.baseCoins}💰</div>
+                `;
                 slot.setAttribute('data-tooltip', `${card.tip} (${card.rarity})`);
 
-                // 在slot元素上存储对卡牌的引用，便于后续访问
+                // 如果是建筑，添加特殊样式
+                if (card.category === IconCategory.BUILDING) {
+                    slot.classList.add('building-slot');
+                }
+
+                // 在slot元素上存储对卡牌的引用
                 slot.__card = card;
             } else {
                 slot.innerHTML = '';
@@ -1022,6 +1058,22 @@
             col.appendChild(slot);
         }
     }
+
+    const buildingStyles = `
+    .building-slot {
+        border: 2px solid #8e44ad;
+        background: rgba(142, 68, 173, 0.1);
+    }
+
+    .building-slot .card-icon {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
+
+    .building-slot:hover .card-icon {
+        transform: scale(1.2);
+    }
+    `;
 
     let hasSelectedUpgrade = false; // 添加选择状态标记
 
@@ -2329,6 +2381,12 @@
         const catSheet = document.createElement('style');
         catSheet.textContent = catMouseStyles;
         document.head.appendChild(catSheet);
+
+        // 添加建筑固定样式
+        const buildSheet = document.createElement('style');
+        buildSheet.textContent = buildingStyles;
+        document.head.appendChild(buildSheet);
+
 
         initResourcePool();
         initCoinPool();
