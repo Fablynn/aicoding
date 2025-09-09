@@ -1114,25 +1114,25 @@
             });
 
         } else {
-            // 常规3选1(保持原有逻辑)
+            // 常规3选1(使用当前挑战的概率)
+            const currentProbs = challenges[currentChallenge];
             const cardPool = [...filteredIconData];
             const choices = [];
-
+            console.log(challenges[currentChallenge]);
             // 获取3个随机选项
             for (let i = 0; i < 3; i++) {
                 if (cardPool.length === 0) break;
 
-                // 根据目标和策略调整抽取概率
+                const roll = Math.random()*100;
                 let card;
-                const roll = Math.random();
 
-                if (roll < 0.1) { // 10%概率抽取传说
-                    card = getRandomCardByRarity(cardPool, Rarity.LEGENDARY);
-                } else if (roll < 0.3) { // 20%概率抽取史诗
+                if (roll < currentProbs.legendaryChance) {
+                    card = getRandomCardByRarity(cardPool, Rarity.legendaryChance);
+                } else if (roll < currentProbs.legendaryChance + currentProbs.epicChance) {
                     card = getRandomCardByRarity(cardPool, Rarity.EPIC);
-                } else if (roll < 0.6) { // 30%概率抽取精良
+                } else if (roll < currentProbs.legendaryChance + currentProbs.epicChance + currentProbs.rareChance) {
                     card = getRandomCardByRarity(cardPool, Rarity.RARE);
-                } else { // 40%概率抽取优秀
+                } else {
                     card = getRandomCardByRarity(cardPool, Rarity.COMMON);
                 }
 
@@ -1146,11 +1146,11 @@
                 const choice = document.createElement('div');
                 choice.className = 'upgrade-card';
                 choice.innerHTML = `
-                    <div class="icon">${card.icon}</div>
-                    <div>${card.tip}</div>
-                    <div style="color: ${getRarityColor(card.rarity)}">${card.rarity}</div>
-                    <div>基础金币: ${card.baseCoins}</div>
-                `;
+                <div class="icon">${card.icon}</div>
+                <div>${card.tip}</div>
+                <div style="color: ${getRarityColor(card.rarity)}">${card.rarity}</div>
+                <div>基础金币: ${card.baseCoins}</div>
+            `;
 
                 choice.onclick = () => {
                     handCards.push(card);
