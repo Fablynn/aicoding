@@ -424,7 +424,7 @@
         });
     }
 
-    // 选择职业
+    // 修改选择职业的函数
     function selectProfession(profession) {
         selectedProfession = profession;
 
@@ -438,13 +438,72 @@
 
         setTimeout(() => {
             panel.remove();
-            // 激活游戏控制
-            document.getElementById('start-button').disabled = false;
+            // 开始初始构筑环节
+            startInitialDeck();
         }, 500);
 
         // 显示选择确认消息
         showProfessionConfirmation(profession);
     }
+
+    function startInitialDeck() {
+        window.deckBuildingCount = 10; // 构筑次数
+        const upgradePanel = document.getElementById('upgrade-panel');
+
+        // 显示构筑面板
+        upgradePanel.style.display = 'block';
+        document.getElementById('show-upgrade-button').style.display = 'none';
+
+        // 修改面板标题
+        const panelTitle = document.querySelector('#upgrade-panel h2');
+        panelTitle.textContent = `🎮 初始构筑 (剩余${window.deckBuildingCount}次)`;
+
+        showUpgradeChoices();
+    }
+
+    // 显示构筑完成消息
+    function showDeckCompleteMessage() {
+        const message = document.createElement('div');
+        message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 200, 0, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        font-size: 24px;
+        z-index: 2000;
+        text-align: center;
+        animation: fadeInOut 2s ease-in-out;
+    `;
+        message.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 10px;">✨</div>
+        <div>初始构筑完成！</div>
+        <div style="font-size: 16px; margin-top: 10px;">点击开始按钮开始游戏</div>
+    `;
+        document.body.appendChild(message);
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+        }
+    `;
+        document.head.appendChild(style);
+
+        // 2秒后移除消息
+        setTimeout(() => {
+            message.remove();
+            style.remove();
+        }, 2000);
+    }
+
 
     // 根据职业过滤卡牌
     function filterCardsByProfession() {
@@ -1180,7 +1239,7 @@
             const currentProbs = challenges[currentChallenge];
             const cardPool = [...filteredIconData];
             const choices = [];
-            console.log(challenges[currentChallenge]);
+
             // 获取3个随机选项
             for (let i = 0; i < 3; i++) {
                 if (cardPool.length === 0) break;
@@ -1216,8 +1275,28 @@
 
                 choice.onclick = () => {
                     handCards.push(card);
-                    giveUpgrade();
-                    showFloatingText(choice, '✨ 获得卡牌!');
+                    // 更新构筑次数
+                    if (window.deckBuildingCount > 0) {
+                        window.deckBuildingCount--;
+
+                        if (window.deckBuildingCount > 0) {
+                            // 更新标题
+                            const panelTitle = document.querySelector('#upgrade-panel h2');
+                            panelTitle.textContent = `🎮 初始构筑 (剩余${window.deckBuildingCount}次)`;
+                            // 刷新新的选项
+                            showUpgradeChoices();
+                        } else {
+                            // 构筑完成
+                            const upgradePanel = document.getElementById('upgrade-panel');
+                            upgradePanel.style.display = 'none';
+                            document.getElementById('start-button').disabled = false;
+                            showDeckCompleteMessage();
+                        }
+                    } else {
+                        // 非初始构筑的情况
+                        giveUpgrade();
+                        showFloatingText(choice, '✨ 获得卡牌!');
+                    }
                 };
 
                 container.appendChild(choice);
@@ -1268,27 +1347,8 @@
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
-        { icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔶', tip: '琥珀', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔷', tip: '蓝宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '♦️', tip: '红宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🔺', tip: '水晶', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🌀', tip: '时空倒流', baseCoins: 0, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },{ icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔶', tip: '琥珀', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔷', tip: '蓝宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '♦️', tip: '红宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🔺', tip: '水晶', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🌀', tip: '时空倒流', baseCoins: 0, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },{ icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔶', tip: '琥珀', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔷', tip: '蓝宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '♦️', tip: '红宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🔺', tip: '水晶', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🌀', tip: '时空倒流', baseCoins: 0, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
-        { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
-        { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+        { icon: '🏚️', tip: '障碍', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
+        { icon: '🦊', tip: '狐狸', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
     ];
 
     // 修改 fillColumn 函数，添加建筑固定逻辑
@@ -2347,7 +2407,7 @@
                 itemDiv.className = 'codex-item';
                 itemDiv.innerHTML = `
             <div class="codex-icon">${card.icon}</div>
-            <div class="codex-tip">${card.tip}</div>
+            <div class="codex-tip">${card.tip}$${card.baseCoins}</div>
         `;
                 handcardsGrid.appendChild(itemDiv);
             });
