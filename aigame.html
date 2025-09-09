@@ -668,6 +668,7 @@
         { icon: '🌲', tip: '松树：生产材料2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
         { icon: '🌳', tip: '树木: 生产神秘2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
         { icon: '🌴', tip: '棕榈树：生产科技2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🎄', tip: '圣诞树 20%概率添加🎇',make: '🎇', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
 
         // 动物伙伴类
         { icon: '🐕', tip: '小狗', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
@@ -707,14 +708,13 @@
         { icon: '🏆', tip: '荣誉奖杯: 生产神秘5', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.TREASURE },
 
         // 节日庆典类
-        { icon: '🎨', tip: '彩绘：三连奇迹', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
-        { icon: '🎇', tip: '烟花: 三连奇迹', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
-        { icon: '🎉', tip: '庆祝', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
-        { icon: '🏮', tip: '红灯笼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎃', tip: '南瓜灯', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎭', tip: '狂欢面具', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        // { icon: '🎄', tip: '圣诞树', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        // { icon: '🎅', tip: '圣诞老人', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.FESTIVAL },
+        { icon: '🎨', tip: '彩绘', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '🎇', tip: '烟花', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '🎉', tip: '庆祝', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
+        { icon: '🏮', tip: '红灯笼', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎃', tip: '南瓜灯', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
         // { icon: '🎪', tip: '嘉年华', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
 
         // 音乐艺术类
@@ -723,7 +723,7 @@
         { icon: '🎶', tip: '旋律', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MUSIC },
         { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
         { icon: '🎼', tip: '乐谱', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🧚', tip: '精灵 40%概率添加🎵',make:'🎵', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🧚', tip: '精灵 30%概率添加🎶',make:'🎶', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
         // { icon: '🎺', tip: '小号', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MUSIC },
         // { icon: '🥁', tip: '战鼓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
 
@@ -733,15 +733,16 @@
         { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
         { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
-        { icon: '🧜‍♀️', tip: '美人鱼', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
-        // 水晶宝石类
+        { icon: '🧜‍♀️', tip: '美人鱼:可以召唤海王类', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+
+        // 水晶宝石类 破碎
         { icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
         { icon: '🔶', tip: '琥珀', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.GEM },
         { icon: '🔷', tip: '蓝宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
         { icon: '♦️', tip: '红宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
         { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
         { icon: '💎', tip: '钻石:生产科技5', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
-        // 时空元素类
+        // 时空元素类 翻转
         { icon: '🌌', tip: '星空', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌠', tip: '流星', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌙', tip: '月光', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.TIME },
@@ -749,7 +750,7 @@
         { icon: '🌀', tip: '时空倒流', baseCoins: 0, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
         { icon: '⌛', tip: '时之沙：生产材料5', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
 
-        // 科技类
+        // 科技类 升级
         { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
         { icon: '🚢', tip: '游轮', baseCoins: 12, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
         { icon: '🚤', tip: '快艇', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TECH },
@@ -1067,69 +1068,130 @@
         clearNoticeChoose();
     }
 
-    // 修改 showUpgradeChoices 函数，使用过滤后的卡牌库
     function showUpgradeChoices() {
         const panel = document.getElementById('upgrade-panel');
         const container = document.getElementById('upgrade-options');
         container.innerHTML = '';
-        isPanelVisible = true;
-        panel.style.display = 'block';
 
-        document.body.classList.add('upgrade-panel-visible');
-        document.getElementById('show-upgrade-button').style.display = 'none';
+        // 根据是否有待处理的高稀有度选择来决定显示哪种选项
+        if (window.pendingRareUpgrades > 0) {
+            // 高稀有度3选1
+            const rareCards = filteredIconData.filter(card =>
+                card.rarity === Rarity.EPIC || card.rarity === Rarity.LEGENDARY
+            );
 
-        const currentTarget = challenges[currentChallenge];
-        const rarityWeights = [
-            { rarity: Rarity.COMMON, weight: currentTarget.commonChance / 100 },
-            { rarity: Rarity.RARE, weight: currentTarget.rareChance / 100 },
-            { rarity: Rarity.EPIC, weight: currentTarget.epicChance / 100 },
-            { rarity: Rarity.LEGENDARY, weight: currentTarget.legendaryChance / 100 }
-        ];
-
-        // 计算权重范围
-        const totalWeight = rarityWeights.reduce((sum, item) => sum + item.weight, 0);
-        const weightedRanges = [];
-        let cumulativeWeight = 0;
-        rarityWeights.forEach(item => {
-            cumulativeWeight += item.weight;
-            weightedRanges.push({ rarity: item.rarity, max: cumulativeWeight / totalWeight });
-        });
-
-        // 随机选择3个奖励
-        const selected = [];
-        while (selected.length < 3) {
-            const rand = Math.random();
-            const selectedRarity = weightedRanges.find(range => rand <= range.max).rarity;
-
-            // 从过滤后的卡牌库中选择符合稀有度的卡牌
-            const options = filteredIconData.filter(icon => icon.rarity === selectedRarity);
-
-            // 如果该稀有度没有卡牌，继续下一次循环
-            if (options.length === 0) continue;
-
-            const randomOption = options[Math.floor(Math.random() * options.length)];
-
-            if (!selected.some(item => item.icon === randomOption.icon)) {
-                selected.push(randomOption);
+            // 随机选择3张高稀有度卡牌
+            const choices = [];
+            while (choices.length < 3 && rareCards.length > 0) {
+                const index = Math.floor(Math.random() * rareCards.length);
+                choices.push({...rareCards[index]});
+                rareCards.splice(index, 1);
             }
+
+            // 创建选项卡片
+            choices.forEach(card => {
+                const choice = document.createElement('div');
+                choice.className = 'upgrade-card';
+                choice.innerHTML = `
+                    <div class="icon">${card.icon}</div>
+                    <div>${card.tip}</div>
+                    <div style="color: #FFD700">${card.rarity}</div>
+                    <div>基础金币: ${card.baseCoins}</div>
+                `;
+
+                choice.onclick = () => {
+                    handCards.push(card);
+                    if (window.pendingRareUpgrades > 0) {
+                        window.pendingRareUpgrades--;
+                    }
+                    giveUpgrade();
+                    showFloatingText(choice, '✨ 获得卡牌!');
+
+                    showUpgradeChoices();
+                };
+
+                container.appendChild(choice);
+            });
+
+        } else {
+            // 常规3选1(保持原有逻辑)
+            const cardPool = [...filteredIconData];
+            const choices = [];
+
+            // 获取3个随机选项
+            for (let i = 0; i < 3; i++) {
+                if (cardPool.length === 0) break;
+
+                // 根据目标和策略调整抽取概率
+                let card;
+                const roll = Math.random();
+
+                if (roll < 0.1) { // 10%概率抽取传说
+                    card = getRandomCardByRarity(cardPool, Rarity.LEGENDARY);
+                } else if (roll < 0.3) { // 20%概率抽取史诗
+                    card = getRandomCardByRarity(cardPool, Rarity.EPIC);
+                } else if (roll < 0.6) { // 30%概率抽取精良
+                    card = getRandomCardByRarity(cardPool, Rarity.RARE);
+                } else { // 40%概率抽取优秀
+                    card = getRandomCardByRarity(cardPool, Rarity.COMMON);
+                }
+
+                if (card) {
+                    choices.push({...card});
+                }
+            }
+
+            // 创建选项卡片
+            choices.forEach(card => {
+                const choice = document.createElement('div');
+                choice.className = 'upgrade-card';
+                choice.innerHTML = `
+                    <div class="icon">${card.icon}</div>
+                    <div>${card.tip}</div>
+                    <div style="color: ${getRarityColor(card.rarity)}">${card.rarity}</div>
+                    <div>基础金币: ${card.baseCoins}</div>
+                `;
+
+                choice.onclick = () => {
+                    handCards.push(card);
+                    giveUpgrade();
+                    showFloatingText(choice, '✨ 获得卡牌!');
+                };
+
+                container.appendChild(choice);
+            });
         }
 
-        // 渲染奖励选项
-        selected.forEach(icon => {
-            const card = document.createElement('div');
-            card.className = 'upgrade-card';
-            card.innerHTML = `
-            <div class="icon">${icon.icon}</div>
-            <h3>${icon.rarity}</h3>
-            <p>${icon.tip}:获得金币${icon.baseCoins}</p>
-        `;
-            card.onclick = () => {
-                handCards.push(icon);
-                hasSelectedUpgrade = true;
-                giveUpgrade();
-            };
-            container.appendChild(card);
-        });
+        panel.style.display = 'block';
+        document.getElementById('show-upgrade-button').style.display = 'none';
+    }
+
+    // 辅助函数：根据稀有度获取随机卡牌
+    function getRandomCardByRarity(cardPool, rarity) {
+        const cards = cardPool.filter(card => card.rarity === rarity);
+        if (cards.length === 0) return null;
+
+        const index = Math.floor(Math.random() * cards.length);
+        const selected = cards[index];
+
+        // 从卡池中移除已选卡牌
+        const poolIndex = cardPool.findIndex(card => card.icon === selected.icon);
+        if (poolIndex !== -1) {
+            cardPool.splice(poolIndex, 1);
+        }
+
+        return selected;
+    }
+
+    // 辅助函数：获取稀有度对应的颜色
+    function getRarityColor(rarity) {
+        switch (rarity) {
+            case Rarity.LEGENDARY: return '#FFD700'; // 金色
+            case Rarity.EPIC: return '#9370DB';      // 紫色
+            case Rarity.RARE: return '#4169E1';      // 蓝色
+            case Rarity.COMMON: return '#90EE90';    // 绿色
+            default: return '#FFFFFF';
+        }
     }
 
     const columns = Array.from({ length: 5 }, (_, i) => document.getElementById(`col-${i}`));
@@ -1148,22 +1210,15 @@
         { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
         { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🎼', tip: '乐谱', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
+
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
         { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
         { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
     ];
@@ -1293,9 +1348,24 @@
     let hasSelectedUpgrade = false; // 添加选择状态标记
 
     function startSlots() {
+        // 如果未完成上一轮选择，禁止开始
+        if (!hasSelectedUpgrade) {
+            noticeChoose();
+            toggleUpgradePanel();
+            return;
+        }
+
+        // 如果有待处理的高稀有度选择
+        if (window.pendingRareUpgrades > 0) {
+            // 显示选择面板
+            showUpgradeChoices();
+            return;
+        }
+
         // 如果未完成上一轮选择,禁止开始
         if(!hasSelectedUpgrade) {
             noticeChoose();
+            toggleUpgradePanel();
             return;
         }
 
@@ -1582,20 +1652,45 @@
     // 修改 checkWin 函数，增加宝箱与钥匙相邻时的特殊消除逻辑
     function checkWin() {
         const grid = [];
+        const processed = new Set(); // 用于记录已处理的位置
+
+        // 构建网格数据
         for (let row = 0; row < rows; row++) {
             grid[row] = [];
             for (let col = 0; col < columns.length; col++) {
                 const slot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
-                if (slot && slot.__card) {
-                    grid[row][col] = slot.__card;
-                } else {
-                    grid[row][col] = null;
-                }
+                grid[row][col] = slot?.__card;
             }
         }
 
         const highlightGroups = [];
         let delay = 0;
+
+        // 遍历格子检查三消效果
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns.length; col++) {
+                const key = `${row},${col}`;
+                if (!processed.has(key) && grid[row][col]?.category === IconCategory.FESTIVAL) {
+                    if (checkFestivalInteraction(grid, row, col, highlightGroups)) {
+                        processed.add(key); // 标记当前位置已处理
+                        // 标记相邻的节日元素为已处理
+                        const directions = [
+                            [-1, -1], [-1, 0], [-1, 1],
+                            [0, -1],           [0, 1],
+                            [1, -1],  [1, 0],  [1, 1]
+                        ];
+                        for (const [dx, dy] of directions) {
+                            const newRow = row + dx;
+                            const newCol = col + dy;
+                            if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                                const newKey = `${newRow},${newCol}`;
+                                processed.add(newKey);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // 遍历所有格子，处理金币效果
         for (let row = 0; row < rows; row++) {
@@ -1603,6 +1698,7 @@
                 const currentCard = grid[row][col];
                 if (!currentCard) continue;
 
+                // 检查音乐符号与其他符号相邻
                 checkMusicInteraction(grid, row, col, highlightGroups);
 
                 // 检查宝箱与钥匙相邻
@@ -2952,7 +3048,7 @@
                 console.log(card,"成功触发概率添加",probability,elementToAdd);
                 // 从iconData中查找匹配的元素
                 const matchingCards = iconData.filter(card =>
-                    card.icon === elementToAdd || card.tip.includes(elementToAdd)
+                    card.icon === elementToAdd
                 );
 
                 if (matchingCards.length > 0) {
@@ -3131,7 +3227,189 @@
         }
     `;
 
+    // 添加全局计数器，记录待触发的高稀有度选择次数
+    window.pendingRareUpgrades = 0;
 
+    function checkFestivalInteraction(grid, row, col, highlightGroups) {
+        const currentCard = grid[row][col];
+
+        if (!currentCard || currentCard.category !== IconCategory.FESTIVAL) return false;
+
+        // 获取周围的节日元素
+        const festivalNeighbors = [];
+        const visited = new Set();
+        visited.add(`${row},${col}`);
+        const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1],           [0, 1],
+            [1, -1],  [1, 0],  [1, 1]
+        ];
+
+        // 检查邻居
+        for (const [dx, dy] of directions) {
+            const newRow = row + dx;
+            const newCol = col + dy;
+
+            if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                const neighbor = grid[newRow][newCol];
+                const key = `${newRow},${newCol}`;
+
+                if (neighbor &&
+                    neighbor.category === IconCategory.FESTIVAL &&
+                    !visited.has(key)) {
+                    festivalNeighbors.push({
+                        row: newRow,
+                        col: newCol,
+                        card: neighbor,
+                        element: document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`)
+                    });
+                    visited.add(key);
+                }
+            }
+        }
+
+        // 如果周围有2个或以上节日元素
+        if (festivalNeighbors.length >= 2) {
+            const currentElement = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+            const elementsToRemove = [
+                { element: currentElement, card: currentCard, row, col },
+                ...festivalNeighbors.map(n => ({
+                    element: n.element,
+                    card: n.card,
+                    row: n.row,
+                    col: n.col
+                }))
+            ];
+
+            // 显示庆典消除特效
+            showFestivalEffect(elementsToRemove);
+
+            // 移除手牌中对应的卡牌和格子中的元素
+            elementsToRemove.forEach(({element, card}) => {
+                // 从手牌移除
+                const cardIndex = handCards.findIndex(handCard =>
+                    handCard.icon === card.icon && !handCard.used);
+                if (cardIndex !== -1) {
+                    handCards[cardIndex].used = true;
+                }
+
+                // 清除格子
+                element.innerHTML = '';
+                element.removeAttribute('data-tooltip');
+                element.__card = null;
+            });
+
+            // 更新手牌显示
+            updateHandCards();
+
+            // 增加高稀有度选择机会
+            window.pendingRareUpgrades++;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // 添加庆典消除特效函数
+    function showFestivalEffect(elements) {
+        // 创建特效容器
+        const effectContainer = document.createElement('div');
+        effectContainer.className = 'festival-effect-container';
+        document.body.appendChild(effectContainer);
+        // 为每个元素创建消除特效
+        elements.forEach(({element, row, col}) => {
+            // 创建烟花特效
+            const firework = document.createElement('div');
+            firework.className = 'festival-firework';
+
+            // 获取元素位置
+            const rect = element.getBoundingClientRect();
+
+            // 设置烟花位置
+            firework.style.left = `${rect.left + rect.width/2}px`;
+            firework.style.top = `${rect.top + rect.height/2}px`;
+
+            effectContainer.appendChild(firework);
+
+            // 添加庆典文字
+            const text = document.createElement('div');
+            text.className = 'festival-text';
+            text.textContent = '✨ 三连奇迹!';
+            text.style.left = `${rect.left + rect.width/2}px`;
+            text.style.top = `${rect.top - 20}px`;
+            effectContainer.appendChild(text);
+        });
+
+        // 添加特效样式
+        const style = document.createElement('style');
+        style.textContent = `
+        .festival-effect-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .festival-firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffeb3b, #ff9800);
+            transform: translate(-50%, -50%);
+            animation: festivalExplosion 0.8s ease-out forwards;
+        }
+
+        .festival-text {
+            position: absolute;
+            color: #ff9800;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            transform: translate(-50%, -50%);
+            animation: festivalTextFloat 1s ease-out forwards;
+        }
+
+        @keyframes festivalExplosion {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(20);
+                opacity: 0;
+            }
+        }
+
+        @keyframes festivalTextFloat {
+            0% {
+                transform: translate(-50%, 0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -30px);
+                opacity: 0;
+            }
+        }
+    `;
+        document.head.appendChild(style);
+
+        // 清理特效
+        setTimeout(() => {
+            effectContainer.remove();
+            style.remove();
+        }, 1000);
+    }
 </script>
 </body>
 </html>
