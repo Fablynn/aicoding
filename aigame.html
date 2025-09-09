@@ -677,7 +677,7 @@
         { icon: '🐇', tip: '兔子 20%概率添加🐇',make:'🐇', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
         { icon: '🐺', tip: '狼', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
         { icon: '🐯', tip: '猛虎', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.ANIMAL },
-        { icon: '🐉', tip: '巨龙: 最强生物', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
+        { icon: '🐉', tip: '巨龙: 最强生物', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
 
         // 建筑设施类
         { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
@@ -728,12 +728,14 @@
         // { icon: '🥁', tip: '战鼓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
 
         // 海洋生物类
-        { icon: '🐋', tip: '巨鲸：生产材料3', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
+        { icon: '🐋', tip: '巨鲸', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
         { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
         { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
-        { icon: '🧜‍♀️', tip: '美人鱼:可以召唤海王类', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 6, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🧜‍♀️', tip: '人鱼公主:可以召唤海王类', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
 
         // 水晶宝石类 破碎
         { icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
@@ -741,14 +743,14 @@
         { icon: '🔷', tip: '蓝宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
         { icon: '♦️', tip: '红宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
         { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '💎', tip: '钻石:生产科技5', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
+        { icon: '💎', tip: '钻石:生产材料3', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
         // 时空元素类 翻转
-        { icon: '🌌', tip: '星空', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.TIME },
+        { icon: '🌌', tip: '星空', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌠', tip: '流星', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌙', tip: '月光', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌞', tip: '太阳', baseCoins: 3, rarity: Rarity.EPIC, category: IconCategory.TIME },
         { icon: '🌀', tip: '时空倒流', baseCoins: 0, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
-        { icon: '⌛', tip: '时之沙：生产材料5', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
+        { icon: '⌛', tip: '时之沙：生产神秘2', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
 
         // 科技类 升级
         { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
@@ -787,11 +789,11 @@
 
         // 状态效果类
         // { icon: '💤', tip: '睡眠', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.STATUS },
+        // { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
         // { icon: '🤢', tip: '中毒', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.STATUS },
         // { icon: '💘', tip: '魅惑', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.STATUS },
         // { icon: '💢', tip: '愤怒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.STATUS },
         // { icon: '😱', tip: '恐惧', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
-        // { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
         // 效果增益类
         // { icon: '🎯', tip: '精准打击', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.BUFF },
         // { icon: '🧲', tip: '磁力吸收', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUFF },
@@ -837,6 +839,63 @@
     ];
 
     let isPanelVisible = false;
+
+    function checkMermaidInteraction(grid, row, col, highlightGroups) {
+        const currentCard = grid[row][col];
+        if (!currentCard || currentCard.icon !== '🧜‍♀️') return false;
+
+        // 检查八个方向的相邻格子
+        const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1],           [0, 1],
+            [1, -1],  [1, 0],  [1, 1]
+        ];
+
+        const marineNeighbors = [];
+        let availableSpots = 0;
+
+        // 检查周围的海洋生物和可用格子数
+        for (const [dx, dy] of directions) {
+            const newRow = row + dx;
+            const newCol = col + dy;
+
+            // 检查位置是否在网格内
+            if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
+                availableSpots++;
+                const neighbor = grid[newRow][newCol];
+                if (neighbor && neighbor.category === IconCategory.MARINE) {
+                    const element = document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`);
+                    marineNeighbors.push({ card: neighbor, element: element });
+                }
+            }
+        }
+
+        // 如果所有可用格子都是海洋生物
+        if (marineNeighbors.length === availableSpots) {
+            const currentElement = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+
+            // 将当前卡牌和相邻卡牌加入高亮组
+            const group = [
+                { card: currentCard, element: currentElement },
+                ...marineNeighbors
+            ];
+            highlightGroups.push(group);
+
+            // 添加巨鲸到手牌
+            const whaleCard = iconData.find(card => card.icon === '🐋');
+            if (whaleCard) {
+                handCards.push({...whaleCard});
+                setTimeout(() => {
+                    showFloatingText(currentElement, '✨ 召唤巨鲸!');
+                    updateHandCards();
+                }, 500);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 
     function checkMusicInteraction(grid, row, col, highlightGroups) {
         const currentSlot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
@@ -1210,15 +1269,26 @@
         { icon: '🐚', tip: '贝壳', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🎇', tip: '烟花', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
         { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
-
-        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 6, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 6, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
+        { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 6, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🧜‍♀️', tip: '人鱼公主:可以召唤海王类', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
         { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
         { icon: '🦊', tip: '狐狸', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
     ];
@@ -1705,8 +1775,10 @@
                 checkKeyBoxPair(grid, row, col, highlightGroups);
                 // 检查水与植物相邻
                 checkWaterPlantInteraction(grid, row, col, highlightGroups);
-
+                // 猫鼠游戏
                 checkCatMouseInteraction(grid, row, col, highlightGroups);
+                // 人鱼公主
+                checkMermaidInteraction(grid, row, col, highlightGroups);
 
                 // 获取基础金币
                 const slot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
