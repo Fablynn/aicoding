@@ -210,7 +210,7 @@
     </style>
 </head>
 <body>
-<!--<h1>🎰 Slots 游戏</h1>-->
+
 <div id="coin-pool">
     <div class="coin-icon">💰</div>
     <span id="coin-count">0</span>
@@ -1287,6 +1287,8 @@
                             showUpgradeChoices();
                         } else {
                             // 构筑完成
+                            const panelTitle = document.querySelector('#upgrade-panel h2');
+                            panelTitle.textContent = `🎮 选择你的奖励`;
                             const upgradePanel = document.getElementById('upgrade-panel');
                             upgradePanel.style.display = 'none';
                             document.getElementById('start-button').disabled = false;
@@ -2151,6 +2153,30 @@
         z-index: 1001;
     }
 
+    // 添加关闭按钮样式
+    #codex-close {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    #codex-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
     #codex-container {
         display: none;
         position: fixed;
@@ -2276,11 +2302,12 @@
     const codexHTML = `
     <button id="codex-button">📖 图鉴</button>
     <div id="codex-container">
+        <button id="codex-close">×</button>
         <div id="codex-content"></div>
     </div>
     `;
 
-    // 在 script 标签中添加以下 JavaScript 代码
+    // 修改 initCodex 函数，添加关闭按钮事件监听
     function initCodex() {
         // 添加样式
         const styleSheet = document.createElement('style');
@@ -2297,196 +2324,274 @@
         const codexButton = document.getElementById('codex-button');
         const codexContainer = document.getElementById('codex-container');
         const codexContent = document.getElementById('codex-content');
+        const codexClose = document.getElementById('codex-close');
 
-        // 按类别整理图标数据
-        const categories = {};
-        iconData.forEach((item, index) => {
-            let category = '';
-            if (index < 8) {
-                category = '武器装备类';
-            } else if (index < 16) {
-                category = '职业类';
-            } else if (index < 24) {
-                category = '状态效果类';
-            } else if (index < 32) {
-                category = '天气环境类';
-            } else if (index < 40) {
-                category = '动物伙伴类';
-            } else if (index < 48) {
-                category = '建筑设施类';
-            } else if (index < 56) {
-                category = '植物资源类';
-            } else if (index < 64) {
-                category = '魔法元素类';
-            } else if (index < 72) {
-                category = '道具消耗品';
-            } else if (index < 80) {
-                category = '宝物财富类';
-            } else if (index < 88) {
-                category = '效果增益类';
-            } else if (index < 96) {
-                category = '特殊能力类';
-            } else if (index < 104) {
-                category = '节日庆典类';
-            } else if (index < 112) {
-                category = '星座符号类';
-            } else if (index < 120) {
-                category = '音乐艺术类';
-            } else if (index < 128) {
-                category = '交通工具类';
-            } else if (index < 136) {
-                category = '水晶宝石类';
-            } else if (index < 144) {
-                category = '魔法符文类';
-            } else if (index < 152) {
-                category = '科技装备类';
-            } else if (index < 160) {
-                category = '海洋生物类';
-            } else if (index < 168) {
-                category = '神话生物类';
-            } else if (index < 176) {
-                category = '时空元素类';
-            }
-
-            if (!categories[category]) {
-                categories[category] = [];
-            }
-            categories[category].push(item);
-        });
-
-        // 绑定按钮点击事件
-        codexButton.addEventListener('click', toggleCodex);
-
-        // 渲染图鉴内容
-        function renderCodex() {
-            codexContent.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="color: white; text-align: center; margin: 0;">图鉴系统</h1>
-            <button id="close-codex" style="
-                padding: 8px 16px;
-                background: #e74c3c;
-                border: none;
-                border-radius: 4px;
-                color: white;
-                cursor: pointer;
-                font-size: 16px;
-                transition: all 0.3s;
-            ">关闭图鉴</button>
-        </div>
-    <div class="codex-tabs">
-        <div class="codex-tab active" data-tab="handcards">当前手牌</div>
-        <div class="codex-tab" data-tab="codex">图鉴大全</div>
-    </div>
-    <div id="handcards-section" class="codex-content-section active">
-        <h2 style="color: white; margin-bottom: 20px;">当前手牌列表</h2>
-        <div class="handcards-grid"></div>
-    </div>
-    <div id="codex-section" class="codex-content-section">
-        <div id="full-codex"></div>
-    </div>
-    `;
-
-            const closeButton = codexContent.querySelector('#close-codex');
-            if (closeButton) {
-                closeButton.addEventListener('click', () => {
-                    codexContainer.style.display = 'none';
-                });
-
-                closeButton.addEventListener('mouseover', () => {
-                    closeButton.style.background = '#c0392b';
-                });
-                closeButton.addEventListener('mouseout', () => {
-                    closeButton.style.background = '#e74c3c';
-                });
-            }
-
-            // 渲染手牌列表
-            const handcardsGrid = codexContent.querySelector('.handcards-grid');
-            handCards.forEach(card => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'codex-item';
-                itemDiv.innerHTML = `
-            <div class="codex-icon">${card.icon}</div>
-            <div class="codex-tip">${card.tip}$${card.baseCoins}</div>
-        `;
-                handcardsGrid.appendChild(itemDiv);
-            });
-
-            // 渲染完整图鉴
-            const fullCodex = codexContent.querySelector('#full-codex');
-            Object.entries(categories).forEach(([category, items]) => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'codex-category';
-                categoryDiv.textContent = category;
-                fullCodex.appendChild(categoryDiv);
-
-                const grid = document.createElement('div');
-                grid.className = 'codex-grid';
-
-                items.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'codex-item';
-                    itemDiv.innerHTML = `
-                <div class="codex-icon">${item.icon}</div>
-                <div class="codex-tip">${item.tip}</div>
-            `;
-                    grid.appendChild(itemDiv);
-                });
-
-                fullCodex.appendChild(grid);
-            });
-
-            // 添加 tab 切换事件
-            const tabs = codexContent.querySelectorAll('.codex-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // 移除所有 active 类
-                    tabs.forEach(t => t.classList.remove('active'));
-                    codexContent.querySelectorAll('.codex-content-section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-
-                    // 添加 active 类到当前选中的 tab 和对应内容
-                    tab.classList.add('active');
-                    const targetId = `${tab.dataset.tab}-section`;
-                    document.getElementById(targetId).classList.add('active');
-                });
-            });
-
-            // 添加提示框显示/隐藏逻辑
-            document.querySelectorAll('.codex-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    document.querySelectorAll('.codex-tip').forEach(tip => {
-                        tip.style.display = 'none';
-                    });
-                    const tip = item.querySelector('.codex-tip');
-                    tip.style.display = 'block';
-                    e.stopPropagation();
-                });
-            });
-        }
-
-        // 切换图鉴显示状态
-        function toggleCodex() {
-            const isVisible = codexContainer.style.display === 'block';
-            codexContainer.style.display = isVisible ? 'none' : 'block';
-            if (!isVisible) {
+        // 切换图鉴显示
+        codexButton.addEventListener('click', () => {
+            codexContainer.style.display = 'block';
+            if(codexContainer.style.display === 'block') {
                 renderCodex();
             }
-        }
+        });
 
-        // 点击空白处关闭图鉴
+        // 关闭按钮点击事件
+        codexClose.addEventListener('click', () => {
+            codexContainer.style.display = 'none';
+        });
+
+        // 点击外部关闭图鉴
         codexContainer.addEventListener('click', (e) => {
-            if (e.target.className == 'codex-grid') {
+            if(e.target === codexContainer) {
                 codexContainer.style.display = 'none';
             }
         });
-
-        // 绑定按钮点击事件
-        codexButton.addEventListener('click', toggleCodex);
     }
 
-    //图鉴代码
+    function renderCodex() {
+        const content = document.getElementById('codex-content');
+        let html = `
+            <div class="codex-tabs">
+                <div class="codex-tab" data-tab="full-codex">完整图鉴</div>
+                <div class="codex-tab active" data-tab="handcards-section">手牌列表</div>
+            </div>
+            <div id="full-codex" class="codex-content-section">
+        `;
+
+        // 遍历所有IconCategory分类
+        Object.keys(IconCategory).forEach(category => {
+            const categoryCards = iconData.filter(card => card.category === IconCategory[category]);
+            if(categoryCards.length > 0) {
+                html += `
+                    <div class="codex-category">
+                        <div class="category-title">${category}</div>
+                    </div>
+                    <div class="codex-grid">
+                `;
+
+                categoryCards.forEach(card => {
+                    const borderColor = getRarityColor(card.rarity);
+                    html += `
+                        <div class="codex-item" style="border: 2px solid ${borderColor}">
+                            <div class="codex-icon">${card.icon}</div>
+                            <div class="codex-name">${card.tip}</div>
+                            <div class="codex-rarity">${card.rarity}</div>
+                            <div class="codex-coins">+${card.baseCoins}💰</div>
+                            <div class="codex-tip">
+                                <div>类别: ${category}</div>
+                                <div>稀有度: ${card.rarity}</div>
+                                <div>基础金币: +${card.baseCoins}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+        });
+
+        html += `
+            </div>
+            <div id="handcards-section" class="codex-content-section active">
+                <div class="handcards-grid">
+        `;
+
+        // 添加手牌内容
+        handCards.forEach((card, index) => {
+            const borderColor = getRarityColor(card.rarity);
+            html += `
+                <div class="handcard-item" style="border: 2px solid ${borderColor}">
+                    <div class="handcard-icon">${card.icon}</div>
+                    <div class="handcard-info">
+                        <div class="handcard-name">${card.tip}</div>
+                        <div class="handcard-rarity">${card.rarity}</div>
+                        <div class="handcard-coins">+${card.baseCoins}💰</div>
+                    </div>
+                    <div class="handcard-actions">
+                        <button class="action-btn delete-btn" data-index="${index}">🗑️ 删除</button>
+                        <button class="action-btn transform-btn" data-index="${index}">🔄 变换</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = html;
+
+        // 添加事件监听
+        addHandcardListeners();
+
+        // 添加标签切换功能
+        const tabs = document.querySelectorAll('.codex-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                document.querySelectorAll('.codex-content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    function addHandcardListeners() {
+        // 删除按钮事件
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 检查科技资源是否足够
+                if (resources.science < 1) {
+                    showResourceError('需要 1 个🔬科技资源才能删除手牌');
+                    return;
+                }
+
+                const cardElement = btn.closest('.handcard-item');
+                const cardIndex = Array.from(cardElement.parentNode.children).indexOf(cardElement);
+
+                // 消耗科技资源
+                resources.science--;
+                updateResourceDisplay();
+
+                // 移除手牌
+                handCards.splice(cardIndex, 1);
+
+                // 更新图鉴显示
+                renderCodex();
+            });
+        });
+
+        // 变换按钮事件
+        document.querySelectorAll('.transform-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 检查神秘资源是否足够
+                if (resources.mystery < 1) {
+                    showResourceError('需要 1 个🔮神秘资源才能变换手牌');
+                    return;
+                }
+
+                const cardElement = btn.closest('.handcard-item');
+                const cardIndex = Array.from(cardElement.parentNode.children).indexOf(cardElement);
+
+                // 消耗神秘资源
+                resources.mystery--;
+                updateResourceDisplay();
+
+                // 替换为随机卡牌
+                const newCard = getRandomCard();
+                handCards[cardIndex] = newCard;
+
+                // 更新图鉴显示
+                renderCodex();
+            });
+        });
+    }
+
+    // 显示资源不足错误提示
+    function showResourceError(message) {
+        const error = document.createElement('div');
+        error.className = 'resource-error';
+        error.textContent = message;
+        error.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 9999;
+            animation: fadeInOut 2s ease-in-out;
+        `;
+
+        document.body.appendChild(error);
+        setTimeout(() => error.remove(), 2000);
+    }
+
+    // 获取随机卡牌
+    function getRandomCard() {
+        const availableCards = filteredIconData.length > 0 ? filteredIconData : iconData;
+        return availableCards[Math.floor(Math.random() * availableCards.length)];
+    }
+
+    // 添加手牌样式
+    const handcardStyles = `
+    .handcard-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: transform 0.2s;
+    }
+
+    .handcard-icon {
+        font-size: 32px;
+        text-align: center;
+    }
+
+    .handcard-info {
+        text-align: center;
+    }
+
+    .handcard-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s;
+    }
+
+    .delete-btn {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .transform-btn {
+        background: #3498db;
+        color: white;
+    }
+
+    .delete-btn:hover {
+        background: #c0392b;
+    }
+
+    .transform-btn:hover {
+        background: #2980b9;
+    }
+`;
+
+    // 将手牌样式添加到 codexStyles
+    const updatedCodexStyles = codexStyles + handcardStyles;
+
+    // 获取分类对应的图标
+    function getCategoryIcon(category) {
+        const icons = {
+            'NORMAL': '💫',
+            'BOX_KEY': '🗝️',
+            'WEATHER': '⛅',
+            'BUILDING': '🏠',
+            'PLANT': '🌱',
+            'MAGIC': '✨',
+            'ANIMAL': '🐾',
+            'SPECIAL': '🎯'
+        };
+        return icons[category] || '📦';
+    }
 
     // 金币右上角显示提示
     const styles = `
@@ -2588,7 +2693,7 @@
     const challenges = [
         {
             slots: 6,
-            coins: 150,
+            coins: 180,
             completed: false,
             commonChance: 90,   // 70% 获得"优秀"品质奖励的概率
             rareChance: 8,    // 25% 获得"精良"品质奖励的概率
@@ -2596,8 +2701,8 @@
             legendaryChance: 0   // 0% 获得"传说"品质奖励的概率
         },
         {
-            slots: 8,
-            coins: 320,
+            slots: 9,
+            coins: 360,
             completed: false,
             commonChance: 80,   // 50% 获得"优秀"品质奖励的概率
             rareChance: 15,    // 35% 获得"精良"品质奖励的概率
@@ -2606,7 +2711,7 @@
         },
         {
             slots: 11,
-            coins: 560,
+            coins: 650,
             completed: false,
             commonChance: 65,   // 30% 获得"优秀"品质奖励的概率
             rareChance: 20,     // 40% 获得"精良"品质奖励的概率
@@ -2615,7 +2720,7 @@
         },
         {
             slots: 13,
-            coins: 800,
+            coins: 1000,
             completed: false,
             commonChance: 30,
             rareChance: 40,     // 40% 获得"精良"品质奖励的概率
@@ -2857,11 +2962,11 @@
         hasSelectedUpgrade = true;
     });
 
-    // 1. 定义资源池数据结构
+    // 1. 定义资源池数据结构 稀有货币
     let resources = {
-        material: 0,   // 材料资源
-        mystery: 0,    // 神秘资源
-        science: 0     // 科技资源
+        material: 1,   // 材料资源
+        mystery: 1,    // 神秘资源
+        science: 1     // 科技资源
     };
 
     // 2. 资源池初始化函数
