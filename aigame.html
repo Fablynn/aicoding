@@ -708,80 +708,81 @@
         setTimeout(() => message.remove(), 2000);
     }
 
-    // 优化后的猫鼠互动检查函数
-    function checkCatMouseInteraction(grid, row, col, highlightGroups) {
+    // 修改猫鼠互动检查函数
+    function checkCatMouseInteraction(grid, row, col) {
         const currentCard = grid[row][col];
-        if (!currentCard) return;
-    
-        // 检查是否是猫或鼠
-        if (currentCard.icon === '🐈' || currentCard.icon === '🐭') {
-            const neighbors = [];
-    
-            // 检查八个方向相邻格子
-            const directions = [
-                [-1, -1], // 左上
-                [-1, 0],  // 上
-                [-1, 1],  // 右上
-                [0, -1],  // 左
-                [0, 1],   // 右
-                [1, -1],  // 左下
-                [1, 0],   // 下
-                [1, 1]    // 右下
-            ];
-    
-            for (const [dx, dy] of directions) {
-                const newRow = row + dx;
-                const newCol = col + dy;
-    
-                // 确保位置在网格内
-                if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
-                    const neighbor = grid[newRow][newCol];
-                    if (neighbor) {
-                        // 如果当前是猫,寻找老鼠
-                        if (currentCard.icon === '🐈' && neighbor.icon === '🐭') {
-                            neighbors.push({
-                                card: neighbor,
-                                element: document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`)
-                            });
-                        }
-                        // 如果当前是老鼠,寻找猫
-                        else if (currentCard.icon === '🐭' && neighbor.icon === '🐈') {
-                            neighbors.push({
-                                card: neighbor,
-                                element: document.querySelector(`.slot[data-row="${newRow}"][data-col="${newCol}"]`)
-                            });
-                        }
-                    }
+        if (!currentCard) return false;
+
+        // 判断当前卡牌是否是猫、鼠或小狗(带遗物)
+        const isCatMouseOrDog = currentCard.tip && (
+            currentCard.tip.includes('Tom') ||
+            currentCard.tip.includes('Jerry') ||
+            (playerRelics.has('CAT_AND_MOUSE') && currentCard.tip.includes('小狗'))
+        );
+
+        if (!isCatMouseOrDog) return false;
+
+        // 检查周围八个方向
+        const directions = [
+            [-1,-1], [-1,0], [-1,1],
+            [0,-1],          [0,1],
+            [1,-1],  [1,0],  [1,1]
+        ];
+
+        for (const [dx, dy] of directions) {
+            const newRow = row + dx;
+            const newCol = col + dy;
+
+            if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < 5) {
+                const neighborCard = grid[newRow][newCol];
+                if (neighborCard && isMatchingPair(currentCard, neighborCard)) {
+                    // 触发互动效果并标记位置
+                    currentCard.row = row;
+                    currentCard.col = col;
+                    neighborCard.row = newRow;
+                    neighborCard.col = newCol;
+                    triggerCatMouseEffect(currentCard, neighborCard);
+                    return true;
                 }
-            }
-    
-            // 如果找到相互作用的卡牌
-            if (neighbors.length > 0) {
-                const currentElement = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
-                
-                // 将当前卡牌和相邻卡牌加入高亮组
-                const group = [
-                    { card: currentCard, element: currentElement },
-                    ...neighbors
-                ];
-                highlightGroups.push(group);
-    
-                // 计算额外获得的金币
-                const extraCoins = neighbors.reduce((sum, {card}) => sum + card.baseCoins, 0);
-                
-                // 更新当前卡片右上角的金币提示
-                const coinIndicator = currentElement.querySelector('.coin-indicator');
-                if (coinIndicator) {
-                    coinIndicator.textContent = `+${currentCard.baseCoins + extraCoins}💰`;
-                }
-    
-                // 显示互动效果
-                setTimeout(() => {
-                    showCatMouseEffect(currentElement, neighbors.map(n => n.element));
-                    addCoins(extraCoins, currentElement);
-                }, 500);
             }
         }
+        return false;
+    }
+
+    function triggerCatMouseEffect(card1, card2) {
+        // 获取对应的格子元素
+        const slot1 = document.querySelector(`.slot[data-row="${card1.row}"][data-col="${card1.col}"]`);
+        const slot2 = document.querySelector(`.slot[data-row="${card2.row}"][data-col="${card2.col}"]`);
+
+        if (!slot1 || !slot2) return;
+
+        // 显示互动动画效果
+        showCatMouseEffect(slot1, [slot2]);
+
+        // 增加额外金币(基于是否有猫和老鼠遗物)
+        const baseBonus = playerRelics.has('CAT_AND_MOUSE') ? 2 : 1;
+        const coinBonus = (card1.baseCoins || 1) + (card2.baseCoins || 1) + baseBonus;
+
+        // 添加金币动画效果
+        setTimeout(() => {
+            addCoins(coinBonus, slot1);
+        }, 500);
+
+        // 添加到高亮组
+        const highlightGroup = [
+            { row: card1.row, col: card1.col },
+            { row: card2.row, col: card2.col }
+        ];
+
+        // 触发高亮效果
+        highlightGroup.forEach(pos => {
+            const slot = document.querySelector(`.slot[data-row="${pos.row}"][data-col="${pos.col}"]`);
+            if (slot) {
+                slot.classList.add('highlight');
+            }
+        });
+
+        return true;
     }
     
     // 优化猫鼠互动效果显示
@@ -896,6 +897,83 @@
             effect: 'autoGrowPlant'
         }
     };
+
+    const catAndMouseRelic = {
+        id: 'CAT_AND_MOUSE',
+        name: '猫和老鼠',
+        icon: '🐱🐭',
+        description: 'Tom、Jerry和小狗的基础金币+1，小狗也可以参与猫鼠互动',
+        onApply: function() {
+            // 遍历所有手牌和卡牌库，更新基础金币
+            function updateCardCoins(card) {
+                if (card.tip && (
+                    card.tip.includes('Tom') ||
+                    card.tip.includes('Jerry') ||
+                    card.tip.includes('小狗')
+                )) {
+                    // 确保baseCoins存在且为数字
+                    const currentCoins = Number(card.baseCoins) || 0;
+                    card.baseCoins = currentCoins + 1;
+
+                    console.log(card)
+                }
+            }
+
+            // 更新卡牌库中的卡牌
+            iconData.forEach(updateCardCoins);
+            // 更新手牌中的卡牌
+            handCards.forEach(updateCardCoins);
+
+            // 更新当前场上的卡牌
+            const grid = getGrid();
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const card = grid[row][col];
+                    if (card) {
+                        updateCardCoins(card);
+                        // 更新显示的提示信息
+                        const slot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+                        if (slot) {
+                            slot.setAttribute('data-tooltip', card.tip);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // 将新遗物添加到 Relics 对象
+    Relics.CAT_AND_MOUSE = catAndMouseRelic;
+
+    // 修改配对检查函数
+    function isMatchingPair(card1, card2) {
+        if (!card1 || !card2) return false;
+
+        const isCat1 = card1.tip && card1.tip.includes('Tom');
+        const isMouse1 = card1.tip && card1.tip.includes('Jerry');
+        const isDog1 = card1.tip && card1.tip.includes('小狗');
+
+        const isCat2 = card2.tip && card2.tip.includes('Tom');
+        const isMouse2 = card2.tip && card2.tip.includes('Jerry');
+        const isDog2 = card2.tip && card2.tip.includes('小狗');
+
+        // 猫和鼠的基础互动
+        if ((isCat1 && isMouse2) || (isMouse1 && isCat2)) {
+            return true;
+        }
+
+        // 如果有猫和老鼠遗物，小狗可以参与互动
+        if (playerRelics.has('CAT_AND_MOUSE')) {
+            if (isDog1) {
+                return isCat2 || isMouse2;
+            }
+            if (isDog2) {
+                return isCat1 || isMouse1;
+            }
+        }
+
+        return false;
+    }
 
     // 玩家的遗物收集
     const playerRelics = new Set();
@@ -1477,6 +1555,10 @@
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         { icon: '🏚️', tip: '障碍', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
         { icon: '🦊', tip: '狐狸', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+
+        { icon: '🌲', tip: '松树：生产材料2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🌳', tip: '树木: 生产神秘2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🌴', tip: '棕榈树：生产科技2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
     ];
 
     // 修改 fillColumn 函数，添加建筑固定逻辑
@@ -3233,8 +3315,8 @@
     // 3. 更新资源显示
     function updateResourceDisplay() {
         document.getElementById('material-count').textContent = resources.material;
-        document.getElementById('mystery-count').textContent = resources.mystery;
-        document.getElementById('science-count').textContent = resources.science;
+        document.getElementById('mystic-count').textContent = resources.mystic;
+        document.getElementById('tech-count').textContent = resources.tech;
     }
 
     // 4. 添加资源并显示动画
@@ -3303,7 +3385,6 @@
         }, 1500);
     }
 
-    // 6. 创建飞向资源池的资源动画
     function createFlyingResource(type, amount, sourceElement) {
         if (!sourceElement) return;
 
@@ -3325,22 +3406,31 @@
         const startX = sourceRect.left + sourceRect.width / 2;
         const startY = sourceRect.top + sourceRect.height / 2;
 
-        // 获取目标位置（资源池中对应资源的位置）
-        const targetElement = document.querySelector(`.resource[data-type="${type}"]`);
-        const targetRect = targetElement ? targetElement.getBoundingClientRect() :
-            document.getElementById('resource-pool').getBoundingClientRect();
+        // 获取目标位置（资源面板中对应资源的计数器）
+        const targetElement = document.querySelector(`#${type}-count`);
+        if (!targetElement) return;
+
+        const targetRect = targetElement.getBoundingClientRect();
         const endX = targetRect.left + targetRect.width / 2;
         const endY = targetRect.top + targetRect.height / 2;
 
-        // 设置初始位置
-        flyingResource.style.left = `${startX}px`;
-        flyingResource.style.top = `${startY}px`;
+        // 设置初始位置和样式
+        flyingResource.style.cssText = `
+            position: fixed;
+            left: ${startX}px;
+            top: ${startY}px;
+            z-index: 1000;
+            pointer-events: none;
+            font-size: 16px;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+        `;
 
         document.body.appendChild(flyingResource);
 
         // 动画飞向目标
         const startTime = performance.now();
-        const duration = 800; // 毫秒
+        const duration = 800;
 
         function animate(currentTime) {
             const elapsed = currentTime - startTime;
@@ -3349,13 +3439,12 @@
             // 使用缓动函数使动画更自然
             const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-            // 计算当前位置（抛物线轨迹）
+            // 计算当前位置
             const currentX = startX + (endX - startX) * easeProgress;
-            const currentY = startY + (endY - startY) * easeProgress - Math.sin(easeProgress * Math.PI) * 50;
+            const currentY = startY + (endY - startY) * easeProgress;
 
-            flyingResource.style.left = `${currentX}px`;
-            flyingResource.style.top = `${currentY}px`;
-            flyingResource.style.opacity = 1 - Math.pow(progress, 2);
+            flyingResource.style.transform = `translate(-50%, -50%) translate(${currentX - startX}px, ${currentY - startY}px)`;
+            flyingResource.style.opacity = 1 - easeProgress;
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -3452,25 +3541,25 @@
         }
 
         // 特定提示文本触发特定资源生产
-        if (tip.includes("生产材料") && Math.random() < 0.2) {
+        if (tip.includes("生产材料") && Math.random() < 0.3) {
             // 从tip中提取数字作为资源数量，如果没有数字则默认为1
             const numberMatch = tip.match(/\d+/);
             const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
             addResource('material', amount, slot);
         }
 
-        if (tip.includes("生产神秘") && Math.random() < 0.2) {
+        if (tip.includes("生产神秘") && Math.random() < 0.3) {
             // 从tip中提取数字作为资源数量，如果没有数字则默认为1
             const numberMatch = tip.match(/\d+/);
             const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
-            addResource('mystery', amount, slot);
+            addResource('mystic', amount, slot);
         }
 
-        if (tip.includes("生产科技") && Math.random() < 0.2) {
+        if (tip.includes("生产科技") && Math.random() < 0.3) {
             // 从tip中提取数字作为资源数量，如果没有数字则默认为1
             const numberMatch = tip.match(/\d+/);
             const amount = numberMatch ? parseInt(numberMatch[0]) : 1;
-            addResource('science', amount, slot);
+            addResource('tech', amount, slot);
         }
     }
 
@@ -4541,8 +4630,28 @@
 
     // 添加遗物
     function addRelic(relicId) {
+        // 检查遗物是否已存在
+        if (playerRelics.has(relicId)) {
+            return false;
+        }
+
+        // 获取遗物对象
+        const relic = Relics[relicId];
+        if (!relic) {
+            return false;
+        }
+
+        // 添加遗物到玩家集合
         playerRelics.add(relicId);
+
+        // 如果遗物有onApply函数，立即执行它
+        if (relic.onApply && typeof relic.onApply === 'function') {
+            relic.onApply();
+        }
+
+        // 更新遗物显示
         updateRelicDisplay();
+        return true;
     }
 
 </script>
