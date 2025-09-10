@@ -282,6 +282,95 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+
+        .relic-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            width: 280px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .relic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .relic-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            cursor: help;
+            position: relative;
+        }
+
+        .relic-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .relic-name {
+            font-size: 12px;
+            color: #4a90e2;
+        }
+
+        .relic-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 8px;
+            border-radius: 4px;
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .relic-item:hover .relic-tooltip {
+            display: block;
+        }
+
+        .relic-choice-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1001;
+            width: 600px;
+        }
+
+        .relic-choices {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .relic-choice {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .relic-choice:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
     </style>
 </head>
 <body>
@@ -776,7 +865,33 @@
     }
     `;
 
+    // 遗物系统
+    const Relics = {
+        OPENER: {
+            id: 'OPENER',
+            name: '开锁器',
+            icon: '🔓',
+            description: '获得的宝箱将自动开启，无需钥匙',
+            effect: 'autoOpenBox'
+        },
+        DOUBLE: {
+            id: 'DOUBLE',
+            name: '好事成双',
+            icon: '🎭',
+            description: '每次结算可以选择两次奖励',
+            effect: 'doubleChoice'
+        },
+        MUSICIAN: {
+            id: 'MUSICIAN',
+            name: '节奏大师',
+            icon: '🎼',
+            description: '奖励选项中必定包含一个音乐元素',
+            effect: 'forcedMusic'
+        }
+    };
 
+    // 玩家的遗物收集
+    const playerRelics = new Set();
 
     const iconData = [
         // 钥匙和宝箱
@@ -1204,12 +1319,11 @@
 
         // 根据是否有待处理的高稀有度选择来决定显示哪种选项
         if (window.pendingRareUpgrades > 0) {
-            // 高稀有度3选1
+            // 高稀有度3选1逻辑保持不变
             const rareCards = filteredIconData.filter(card =>
                 card.rarity === Rarity.EPIC || card.rarity === Rarity.LEGENDARY
             );
 
-            // 随机选择3张高稀有度卡牌
             const choices = [];
             while (choices.length < 3 && rareCards.length > 0) {
                 const index = Math.floor(Math.random() * rareCards.length);
@@ -1217,46 +1331,32 @@
                 rareCards.splice(index, 1);
             }
 
-            // 创建选项卡片
-            choices.forEach(card => {
-                const choice = document.createElement('div');
-                choice.className = 'upgrade-card';
-                choice.innerHTML = `
-                    <div class="icon">${card.icon}</div>
-                    <div>${card.tip}</div>
-                    <div style="color: #FFD700">${card.rarity}</div>
-                    <div>基础金币: ${card.baseCoins}</div>
-                `;
-
-                choice.onclick = () => {
-                    handCards.push(card);
-                    if (window.pendingRareUpgrades > 0) {
-                        window.pendingRareUpgrades--;
-                    }
-                    giveUpgrade();
-                    showFloatingText(choice, '✨ 获得卡牌!');
-
-                    showUpgradeChoices();
-                };
-
-                container.appendChild(choice);
-            });
-
+            renderChoices(choices, container);
         } else {
-            // 常规3选1(使用当前挑战的概率)
-            const currentProbs = challenges[currentChallenge];
+            // 常规选择逻辑，加入节奏大师效果
             const cardPool = [...filteredIconData];
-            const choices = [];
+            let choices = [];
 
-            // 获取3个随机选项
-            for (let i = 0; i < 3; i++) {
-                if (cardPool.length === 0) break;
+            // 如果有节奏大师遗物，优先选择音乐卡牌
+            if (playerRelics.has('MUSICIAN')) {
+                const musicCards = cardPool.filter(card => card.category === IconCategory.MUSIC);
+                if (musicCards.length > 0) {
+                    const musicCard = musicCards[Math.floor(Math.random() * musicCards.length)];
+                    choices.push({...musicCard});
+                    // 从卡池中移除已选择的音乐卡牌
+                    const index = cardPool.findIndex(card => card.icon === musicCard.icon);
+                    if (index !== -1) cardPool.splice(index, 1);
+                }
+            }
 
-                const roll = Math.random()*100;
+            // 填充剩余选项
+            const currentProbs = challenges[currentChallenge];
+            while (choices.length < 3 && cardPool.length > 0) {
+                const roll = Math.random() * 100;
                 let card;
 
                 if (roll < currentProbs.legendaryChance) {
-                    card = getRandomCardByRarity(cardPool, Rarity.legendaryChance);
+                    card = getRandomCardByRarity(cardPool, Rarity.LEGENDARY);
                 } else if (roll < currentProbs.legendaryChance + currentProbs.epicChance) {
                     card = getRandomCardByRarity(cardPool, Rarity.EPIC);
                 } else if (roll < currentProbs.legendaryChance + currentProbs.epicChance + currentProbs.rareChance) {
@@ -1267,54 +1367,65 @@
 
                 if (card) {
                     choices.push({...card});
+                    // 从卡池中移除已选择的卡牌
+                    const index = cardPool.findIndex(c => c.icon === card.icon);
+                    if (index !== -1) cardPool.splice(index, 1);
                 }
             }
 
-            // 创建选项卡片
-            choices.forEach(card => {
-                const choice = document.createElement('div');
-                choice.className = 'upgrade-card';
-                choice.innerHTML = `
+            renderChoices(choices, container);
+        }
+
+        panel.style.display = 'block';
+        document.getElementById('show-upgrade-button').style.display = 'none';
+    }
+
+    // 抽取渲染选项的公共函数
+    function renderChoices(choices, container) {
+        choices.forEach(card => {
+            const choice = document.createElement('div');
+            choice.className = 'upgrade-card';
+            choice.innerHTML = `
                 <div class="icon">${card.icon}</div>
                 <div>${card.tip}</div>
                 <div style="color: ${getRarityColor(card.rarity)}">${card.rarity}</div>
                 <div>基础金币: ${card.baseCoins}</div>
             `;
 
-                choice.onclick = () => {
-                    handCards.push(card);
-                    // 更新构筑次数
+            choice.onclick = () => {
+                handCards.push(card);
+
+                if (window.pendingRareUpgrades > 0) {
+                    window.pendingRareUpgrades--;
+                    giveUpgrade();
+                    showFloatingText(choice, '✨ 获得卡牌!');
+                    showUpgradeChoices();
+                } else if (window.deckBuildingCount > 0) {
+                    window.deckBuildingCount--;
                     if (window.deckBuildingCount > 0) {
-                        window.deckBuildingCount--;
-
-                        if (window.deckBuildingCount > 0) {
-                            // 更新标题
-                            const panelTitle = document.querySelector('#upgrade-panel h2');
-                            panelTitle.textContent = `🎮 初始构筑 (剩余${window.deckBuildingCount}次)`;
-                            // 刷新新的选项
-                            showUpgradeChoices();
-                        } else {
-                            // 构筑完成
-                            const panelTitle = document.querySelector('#upgrade-panel h2');
-                            panelTitle.textContent = `🎮 选择你的奖励`;
-                            const upgradePanel = document.getElementById('upgrade-panel');
-                            upgradePanel.style.display = 'none';
-                            document.getElementById('start-button').disabled = false;
-                            showDeckCompleteMessage();
-                        }
+                        const panelTitle = document.querySelector('#upgrade-panel h2');
+                        panelTitle.textContent = `🎮 初始构筑 (剩余${window.deckBuildingCount}次)`;
+                        showUpgradeChoices();
                     } else {
-                        // 非初始构筑的情况
-                        giveUpgrade();
-                        showFloatingText(choice, '✨ 获得卡牌!');
+                        const panelTitle = document.querySelector('#upgrade-panel h2');
+                        panelTitle.textContent = `🎮 选择你的奖励`;
+                        const upgradePanel = document.getElementById('upgrade-panel');
+                        upgradePanel.style.display = 'none';
+                        document.getElementById('start-button').disabled = false;
+                        showDeckCompleteMessage();
                     }
-                };
+                } else {
+                    giveUpgrade();
+                    showFloatingText(choice, '✨ 获得卡牌!');
+                    if (window.doubleChoose == 1) {
+                        showUpgradeChoices();
+                        window.doubleChoose--;
+                    }
+                }
+            };
 
-                container.appendChild(choice);
-            });
-        }
-
-        panel.style.display = 'block';
-        document.getElementById('show-upgrade-button').style.display = 'none';
+            container.appendChild(choice);
+        });
     }
 
     // 辅助函数：根据稀有度获取随机卡牌
@@ -1873,12 +1984,130 @@
             }, highlightDelay);
             highlightDelay += 300;
         });
+
+        // 好事成双遗物效果
+        if (playerRelics.has('DOUBLE')) {
+            window.doubleChoose = 1;
+        }
+    }
+
+    function processBoxOpen(row, col, boxCard) {
+        // 获取宝箱所在的格子
+        const boxSlot = document.querySelector(`.slot[data-row="${row}"][data-col="${col}"]`);
+        if (!boxSlot) return;
+
+        // 创建宝箱开启特效容器
+        const effectContainer = document.createElement('div');
+        effectContainer.className = 'box-open-container';
+        effectContainer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+
+        // 添加开启动画
+        effectContainer.innerHTML = `
+            <div class="box-animation">
+                <div class="box-icon">${boxCard.icon}</div>
+                <div class="box-sparkles">✨</div>
+                <div class="coin-burst">💰</div>
+            </div>
+        `;
+
+        boxSlot.appendChild(effectContainer);
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .box-animation {
+                position: relative;
+                animation: boxOpen 1s ease-out;
+            }
+            .box-icon {
+                font-size: 24px;
+                position: relative;
+                z-index: 2;
+            }
+            .box-sparkles {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 32px;
+                opacity: 0;
+                animation: sparkleEffect 1s ease-out;
+            }
+            .coin-burst {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 24px;
+                opacity: 0;
+                animation: coinBurst 1s ease-out;
+            }
+            @keyframes boxOpen {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(0); }
+            }
+            @keyframes sparkleEffect {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            }
+            @keyframes coinBurst {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                40% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+                100% { transform: translate(-50%, -150%) scale(1); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 延迟处理金币和清理效果
+        setTimeout(() => {
+            // 获取宝箱中的金币
+            if (boxCard.delCoins) {
+                addCoins(boxCard.delCoins, boxSlot);
+            }
+
+            // 清理动画元素
+            effectContainer.remove();
+            style.remove();
+
+            // 清空格子
+            boxSlot.innerHTML = '';
+            boxSlot.removeAttribute('data-tooltip');
+            boxSlot.__card = null;
+
+            // 从手牌中移除宝箱
+            const boxIndex = handCards.findIndex(card =>
+                card.icon === boxCard.icon &&
+                card.category === boxCard.category
+            );
+            if (boxIndex !== -1) {
+                handCards.splice(boxIndex, 1);
+            }
+        }, 1000);
     }
 
     // 新增函数：检查宝箱与钥匙相邻
     function checkKeyBoxPair(grid, row, col, highlightGroups) {
         const currentCard = grid[row][col];
         if (!currentCard) return;
+
+        // 如果有开锁器遗物，直接开启宝箱
+        if (playerRelics.has('OPENER') &&
+            [IconCategory.Box].includes(currentCard.category)) {
+            processBoxOpen(row, col, currentCard);
+            return;
+        }
 
         // 检查是否是钥匙
         if (currentCard.category === IconCategory.Key) {
@@ -2959,6 +3188,9 @@
         initCodex();
         initShop();
         initResourcePanel();
+        initRelicSystem();
+
+        showRelicChoices();
 
         // 在所有初始化完成后显示职业选择面板
         initProfessionSelection();
@@ -4102,12 +4334,17 @@
         setTimeout(() => success.remove(), 2000);
     }
 
-    // 辅助函数：打乱数组顺序
     function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+        if (!Array.isArray(array)) {
+            console.error('shuffleArray: argument is not an array');
+            return [];
         }
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
     }
 
     // 添加商店错误和警告提示样式
@@ -4218,6 +4455,89 @@
             }
         });
     }
+
+    // 初始化遗物面板
+    function initRelicSystem() {
+        const panel = document.createElement('div');
+        panel.className = 'relic-panel';
+        panel.innerHTML = `
+            <h3>遗物收集</h3>
+            <div class="relic-grid"></div>
+        `;
+        document.body.appendChild(panel);
+        updateRelicDisplay();
+    }
+
+    // 更新遗物显示
+    function updateRelicDisplay() {
+        const grid = document.querySelector('.relic-grid');
+        grid.innerHTML = Array.from(playerRelics).map(relicId => {
+            const relic = Relics[relicId];
+            return `
+                <div class="relic-item">
+                    <div class="relic-icon">${relic.icon}</div>
+                    <div class="relic-name">${relic.name}</div>
+                    <div class="relic-tooltip">${relic.description}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function showRelicChoices() {
+        // 确保 Relics 对象存在且不为空
+        if (!Relics || Object.keys(Relics).length === 0) {
+            console.error('Relics object is not properly initialized');
+            return;
+        }
+
+        // 获取未获得的遗物
+        const availableRelics = Object.values(Relics).filter(relic =>
+            !playerRelics.has(relic.id)
+        );
+
+        // 检查是否还有可用遗物
+        if (!availableRelics || availableRelics.length === 0) {
+            console.log('No available relics to choose from');
+            return;
+        }
+
+        // 随机选择3个遗物，如果可用遗物不足3个，则使用所有可用遗物
+        const choiceCount = Math.min(3, availableRelics.length);
+        const choices = shuffleArray([...availableRelics]).slice(0, choiceCount);
+
+        const modal = document.createElement('div');
+        modal.className = 'relic-choice-modal';
+        modal.innerHTML = `
+            <h2>🎁 选择一个遗物</h2>
+            <div class="relic-choices">
+                ${choices.map(relic => `
+                    <div class="relic-choice" data-relic-id="${relic.id}">
+                        <div class="relic-icon">${relic.icon}</div>
+                        <div class="relic-name">${relic.name}</div>
+                        <div class="relic-description">${relic.description}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // 添加选择事件
+        modal.querySelectorAll('.relic-choice').forEach(choice => {
+            choice.addEventListener('click', () => {
+                const relicId = choice.dataset.relicId;
+                addRelic(relicId);
+                modal.remove();
+            });
+        });
+    }
+
+    // 添加遗物
+    function addRelic(relicId) {
+        playerRelics.add(relicId);
+        updateRelicDisplay();
+    }
+
 </script>
 </body>
 </html>
