@@ -1004,8 +1004,8 @@
         { icon: '🎄', tip: '圣诞树 20%概率添加🎇',make: '🎇', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
 
         // 动物伙伴类
-        { icon: '🐕', tip: '小狗', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-        { icon: '🐈', tip: 'Tom', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+        { icon: '🐕', tip: '小狗', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+        { icon: '🐈', tip: 'Tom', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
         { icon: '🐭', tip: 'Jerry', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
         { icon: '🐇', tip: '兔子 20%概率添加🐇',make:'🐇', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
         { icon: '🐺', tip: '狼', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
@@ -1554,11 +1554,8 @@
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         // { icon: '📦', tip: '宝箱', baseCoins: 1,delCoins:30, rarity: Rarity.COMMON, category: IconCategory.Box },
         { icon: '🏚️', tip: '障碍', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
-        { icon: '🦊', tip: '狐狸', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
-
-        { icon: '🌲', tip: '松树：生产材料2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
-        { icon: '🌳', tip: '树木: 生产神秘2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
-        { icon: '🌴', tip: '棕榈树：生产科技2', baseCoins: 5, rarity: Rarity.LEGENDARY, category: IconCategory.PLANT },
+        { icon: '🐕', tip: '小狗', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.ANIMAL },
+        { icon: '🎨', tip: '彩绘', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
     ];
 
     // 修改 fillColumn 函数，添加建筑固定逻辑
@@ -3018,8 +3015,8 @@
     // 挑战列表数据
     const challenges = [
         {
-            slots: 9,
-            coins: 240,
+            slots: 5,
+            coins: 210,
             completed: false,
             commonChance: 90,   // 70% 获得"优秀"品质奖励的概率
             rareChance: 8,    // 25% 获得"精良"品质奖励的概率
@@ -3027,8 +3024,17 @@
             legendaryChance: 0   // 0% 获得"传说"品质奖励的概率
         },
         {
-            slots: 13,
-            coins: 500,
+            slots: 8,
+            coins: 450,
+            completed: false,
+            commonChance: 80,   // 70% 获得"优秀"品质奖励的概率
+            rareChance: 15,    // 25% 获得"精良"品质奖励的概率
+            epicChance: 4,    // 5% 获得"史诗"品质奖励的概率
+            legendaryChance: 1   // 0% 获得"传说"品质奖励的概率
+        },
+        {
+            slots: 11,
+            coins: 800,
             completed: false,
             commonChance: 80,   // 50% 获得"优秀"品质奖励的概率
             rareChance: 15,    // 35% 获得"精良"品质奖励的概率
@@ -3036,8 +3042,8 @@
             legendaryChance: 0 // 2% 获得"传说"品质奖励的概率
         },
         {
-            slots: 15,
-            coins: 1200,
+            slots: 13,
+            coins: 1500,
             completed: false,
             commonChance: 65,   // 30% 获得"优秀"品质奖励的概率
             rareChance: 20,     // 40% 获得"精良"品质奖励的概率
@@ -3045,8 +3051,8 @@
             legendaryChance: 3  // 10% 获得"传说"品质奖励的概率
         },
         {
-            slots: 16,
-            coins: 1400,
+            slots: 17,
+            coins: 2100,
             completed: false,
             commonChance: 30,
             rareChance: 40,     // 40% 获得"精良"品质奖励的概率
@@ -3091,29 +3097,114 @@
     }
 
 
-    // 检查挑战结果
+    // 添加全局变量跟踪完成的挑战次数
+    let completedChallenges = 0;
+
+    // 修改 checkChallengeResult 函数
     function checkChallengeResult() {
         const currentTarget = challenges[currentChallenge];
 
         if (coinCount >= currentTarget.coins) {
-            // 完成挑战
-            coinCount -= currentTarget.coins;
-            updateCoinDisplay();
-            currentTarget.completed = true;
+            // 记录完成的挑战次数
+            completedChallenges++;
+
+            // 更新UI显示
+            renderChallenges(); // 先重新渲染挑战列表
+
+            // 然后再标记当前挑战为完成
+            const challengeItem = document.querySelector(`.challenge-item[data-index="${currentChallenge}"]`);
+            if (challengeItem) {
+                challengeItem.classList.add('completed');
+            }
+
+            // 显示完成消息
             showChallengeComplete();
 
-            // 进入下一个挑战
-            if (currentChallenge < challenges.length - 1) {
-                currentChallenge++;
+            // 给予高稀有度选择奖励
+            window.pendingRareUpgrades = 1;
+            showUpgradeChoices();
+
+            // 如果完成了两次以上挑战，显示遗物选择
+            if (completedChallenges >= 2) {
+                showRelicChoices();
+            }
+
+            // 重置金币并进入下一个挑战
+            coinCount -= currentTarget.coins;
+            updateCoinDisplay();
+            currentChallenge++;
+
+            // 更新下一个挑战的可用次数
+            if (currentChallenge < challenges.length) {
                 remainingSlots = challenges[currentChallenge].slots;
-                renderChallenges();
                 updateRemainingSlots();
+                renderChallenges(); // 再次渲染以更新活动挑战
             } else {
+                // 处理所有挑战完成的情况
                 showGameComplete();
             }
-        } else {
+        } else if (remainingSlots <= 0) {
             showGameOver();
         }
+    }
+
+    // 修改 renderChallenges 函数，添加 data-index 属性
+    function renderChallenges() {
+        const list = document.getElementById('challenge-list');
+        if (!list) return; // 添加安全检查
+
+        list.innerHTML = challenges.map((challenge, index) => `
+            <div class="challenge-item ${index === currentChallenge ? 'active' : ''}
+                 ${index < currentChallenge ? 'completed' : ''}"
+                 data-index="${index}">
+                <div class="challenge-goal">目标: ${challenge.coins}💰</div>
+                <div class="challenge-slots">可用次数: ${challenge.slots}</div>
+            </div>
+        `).join('');
+    }
+
+    // 添加显示遗物选择的函数
+    function showRelicChoices() {
+        // 创建遗物选择面板
+        const modal = document.createElement('div');
+        modal.className = 'relic-choice-modal';
+        modal.innerHTML = `
+            <h2>🎁 选择一个遗物</h2>
+            <div class="relic-choices"></div>
+        `;
+
+        // 从所有遗物中随机选择3个未获得的遗物
+        const availableRelics = Object.values(Relics).filter(relic => !playerRelics.has(relic.id));
+        const choices = [];
+
+        while (choices.length < 3 && availableRelics.length > choices.length) {
+            const index = Math.floor(Math.random() * availableRelics.length);
+            const relic = availableRelics[index];
+            if (!choices.includes(relic)) {
+                choices.push(relic);
+            }
+        }
+
+        // 渲染遗物选项
+        const choicesContainer = modal.querySelector('.relic-choices');
+        choices.forEach(relic => {
+            const choice = document.createElement('div');
+            choice.className = 'relic-choice';
+            choice.innerHTML = `
+                <div class="relic-icon">${relic.icon}</div>
+                <div class="relic-name">${relic.name}</div>
+                <div class="relic-description">${relic.description}</div>
+            `;
+
+            choice.onclick = () => {
+                addRelic(relic.id);
+                modal.remove();
+            };
+
+            choicesContainer.appendChild(choice);
+        });
+
+        document.body.appendChild(modal);
     }
 
     // 显示挑战完成消息
