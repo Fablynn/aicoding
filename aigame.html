@@ -887,6 +887,13 @@
             icon: '🎼',
             description: '奖励选项中必定包含一个音乐元素',
             effect: 'forcedMusic'
+        },
+        GOLDEN_WATER: {
+            id: 'GOLDEN_WATER',
+            name: '金坷垃',
+            icon: '🌱',
+            description: '每回合水滴旁的非传说植物必定成长',
+            effect: 'autoGrowPlant'
         }
     };
 
@@ -1727,7 +1734,7 @@
             // 如果找到了植物，处理所有植物
             if (foundPlants.length > 0) {
                 // 20%概率触发成长效果
-                if (Math.random() < 0.2) {
+                if (Math.random() < 0.2 || playerRelics.has('GOLDEN_WATER')) {
                     // 将水添加到高亮组
                     const highlightGroup = [{ row, col }];  // 水的位置
 
