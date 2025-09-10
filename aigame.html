@@ -207,6 +207,81 @@
             margin-bottom: 10px;
         }
 
+
+        .resource-panel {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            width: 280px;  /* 固定宽度 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+
+        /* 美化资源面板标题 */
+        .resource-panel h3 {
+            margin: 0 0 15px 0;
+            color: #4a90e2;
+            font-size: 18px;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 8px;
+        }
+
+        /* 优化资源项布局 */
+        .resource-item {
+            margin: 8px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resource-info {
+            flex: 1;
+        }
+
+        .resource-name {
+            font-size: 14px;
+            color: #4a90e2;
+        }
+
+        .resource-count {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .resource-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .trade-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .buy-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .sell-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .trade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -701,6 +776,8 @@
     }
     `;
 
+
+
     const iconData = [
         // 钥匙和宝箱
         { icon: '🗝️', tip: '开锁', baseCoins: 1,delCoins:0, rarity: Rarity.COMMON, category: IconCategory.Key },
@@ -712,9 +789,6 @@
         // 天气环境类
         { icon: '🌪️', tip: '龙卷风：破坏', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '🌧️', tip: '雨天:20%概率添加💧',make:'💧', baseCoins: 1, rarity: Rarity.RARE, category: IconCategory.WEATHER },
-        // { icon: '⛈️', tip: '雷暴', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
-        // { icon: '❄️', tip: '暴雪', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
-        // { icon: '☁️', tip: '多云', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
         { icon: '💧', tip: '水:可以让植物长大', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.WEATHER },
         // { icon: '🌫️', tip: '核废水', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.WEATHER },
 
@@ -736,7 +810,7 @@
         { icon: '🐇', tip: '兔子 20%概率添加🐇',make:'🐇', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
         { icon: '🐺', tip: '狼', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.ANIMAL },
         { icon: '🐯', tip: '猛虎', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.ANIMAL },
-        { icon: '🐉', tip: '巨龙: 最强生物', baseCoins: 18, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
+        { icon: '🐉', tip: '巨龙: 最强生物', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.ANIMAL },
 
         // 建筑设施类
         { icon: '🏚️', tip: '废墟', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.BUILDING },
@@ -759,6 +833,7 @@
         // { icon: '💊', tip: '治疗药剂', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MAGIC },
         // { icon: '🧉', tip: '能量饮品', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.MAGIC },
         // { icon: '🔮', tip: '预言水晶', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MAGIC },
+        // { icon: '🎪', tip: '嘉年华', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
 
         // 宝物财富类
         { icon: '💰', tip: '金币', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TREASURE },
@@ -772,9 +847,8 @@
         { icon: '🎉', tip: '庆祝', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.FESTIVAL },
         { icon: '🏮', tip: '红灯笼', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
         { icon: '🎃', tip: '南瓜灯', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
-        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
+        { icon: '🎭', tip: '狂欢面具 20%概率添加🎨',make: '🎨', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
         { icon: '🎅', tip: '圣诞老人 40%概率添加🎉',make: '🎉', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        // { icon: '🎪', tip: '嘉年华', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.FESTIVAL },
 
         // 音乐艺术类
         { icon: '🎻', tip: '小提琴 20%概率添加🎵',make:'🎵', baseCoins: 1, rarity: Rarity.RARE, category: IconCategory.MUSIC },
@@ -782,27 +856,26 @@
         { icon: '🎶', tip: '旋律', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MUSIC },
         { icon: '🎵', tip: '音符', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
         { icon: '🎼', tip: '乐谱', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MUSIC },
-        { icon: '🧚', tip: '精灵 30%概率添加🎶',make:'🎶', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        // { icon: '🎺', tip: '小号', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MUSIC },
-        // { icon: '🥁', tip: '战鼓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
+        { icon: '🥁', tip: '战鼓', baseCoins: 3, rarity: Rarity.EPIC, category: IconCategory.MUSIC },
+        { icon: '🧚', tip: '精灵 30%概率添加🎶',make:'🎶', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
 
         // 海洋生物类
         { icon: '🐋', tip: '巨鲸', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MARINE },
         { icon: '🦐', tip: '虾', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐚', tip: '贝壳', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.MARINE },
         { icon: '🐡', tip: '河豚', baseCoins: 2, rarity: Rarity.RARE, category: IconCategory.MARINE },
-        { icon: '🐙', tip: '章鱼', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.MARINE },
-        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 6, rarity: Rarity.EPIC, category: IconCategory.MARINE },
-        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐙', tip: '章鱼', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.MARINE },
+        { icon: '🐳', tip: '喷水鲸：生产神秘1', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.MARINE },
+        { icon: '🐬', tip: '海豚：生产神秘1', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.MARINE },
         { icon: '🧜‍♀️', tip: '人鱼公主:可以召唤海王类', baseCoins: 2, rarity: Rarity.EPIC, category: IconCategory.MARINE },
 
         // 水晶宝石类
         { icon: '⬜', tip: '普通矿石', baseCoins: 1, rarity: Rarity.COMMON, category: IconCategory.GEM },
         { icon: '🔶', tip: '琥珀', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.GEM },
-        { icon: '🔷', tip: '蓝宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '♦️', tip: '红宝石', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.GEM },
-        { icon: '🟡', tip: '黄宝石', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
-        { icon: '🔺', tip: '水晶', baseCoins: 5, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🔷', tip: '蓝宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
+        { icon: '♦️', tip: '红宝石', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.GEM },
+        { icon: '🟡', tip: '黄宝石', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.GEM },
+        { icon: '🔺', tip: '水晶', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.GEM },
         { icon: '💎', tip: '钻石:生产材料3', baseCoins: 10, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
         { icon: '🔮', tip: '魔法水晶:生产神秘3', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.GEM },
 
@@ -815,79 +888,14 @@
         { icon: '⌛', tip: '时之沙：生产神秘2', baseCoins: 8, rarity: Rarity.LEGENDARY, category: IconCategory.TIME },
 
         // 科技类 升级
-        { icon: '🚀', tip: '火箭', baseCoins: 20, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '🚢', tip: '游轮', baseCoins: 12, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '🚤', tip: '快艇', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.TECH },
-        { icon: '🛸', tip: '时光机', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '🚁', tip: '直升机', baseCoins: 14, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '⚡', tip: '能源核心', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.TECH },
-        { icon: '🔋', tip: '高能电池', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.TECH },
-        { icon: '💻', tip: '终端设备', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.TECH },
-        { icon: '🎮', tip: '控制器', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.TECH },
-        { icon: '📱', tip: '智能设备', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.TECH },
-        { icon: '🛰️', tip: '卫星模块', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
-        { icon: '🤖', tip: '机器人', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
         { icon: '⚙️', tip: '机械齿轮', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
-
-
-        // 神话生物类
-        // { icon: '🦄', tip: '独角兽', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        // { icon: '🧚', tip: '精灵', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.MYTH },
-        // { icon: '🧞', tip: '灯神', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.MYTH },
-        // { icon: '🧛', tip: '吸血鬼', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.MYTH },
-        // { icon: '👹', tip: '恶魔', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.MYTH },
-        // { icon: '👻', tip: '幽灵', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.MYTH },
-
-
-        // // 冒险类
-        // { icon: '🗡️', tip: '勇气之刃', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🛡️', tip: '勇气之盾', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🏹', tip: '勇气之弓', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
-        // { icon: '⚔️', tip: '英勇打击', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.WEAPON },
-        // { icon: '🪓', tip: '一往无前', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
-        // { icon: '🔫', tip: '狙杀', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🗡️', tip: '匕首', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.WEAPON },
-        // { icon: '🦾', tip: '冒险', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.WEAPON },
-
-        // 状态效果类
-        // { icon: '💤', tip: '睡眠', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '🤕', tip: '受伤', baseCoins: 3, rarity: Rarity.COMMON, category: IconCategory.STATUS },
-        // { icon: '🤢', tip: '中毒', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '💘', tip: '魅惑', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.STATUS },
-        // { icon: '💢', tip: '愤怒', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.STATUS },
-        // { icon: '😱', tip: '恐惧', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.STATUS },
-        // 效果增益类
-        // { icon: '🎯', tip: '精准打击', baseCoins: 6, rarity: Rarity.RARE, category: IconCategory.BUFF },
-        // { icon: '🧲', tip: '磁力吸收', baseCoins: 5, rarity: Rarity.RARE, category: IconCategory.BUFF },
-        // { icon: '🦾', tip: '机械强化', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.BUFF },
-        // { icon: '🎭', tip: '伪装效果', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.BUFF },
-        // { icon: '👁️', tip: '真实视觉', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.BUFF },
-        // { icon: '🛡️', tip: '护盾加成', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.BUFF },
-        // { icon: '⚔️', tip: '攻击强化', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.BUFF },
-        // { icon: '💥', tip: '爆炸增幅', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.BUFF },
-
-        // 特殊能力类
-        // { icon: '🌀', tip: '瞬间移动', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
-        // { icon: '🎲', tip: '随机效果', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
-        // { icon: '🎮', tip: '技能强化', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
-        // { icon: '🃏', tip: '复制能力', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
-        // { icon: '🦸', tip: '英雄模式', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
-        // { icon: '🧙', tip: '召唤法师', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
-        // { icon: '🦹', tip: '反派技能', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.ABILITY },
-        // { icon: '🧞', tip: '召唤精灵', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ABILITY },
-        // { icon: '🧟', tip: '亡灵', baseCoins: 4, rarity: Rarity.RARE , category: IconCategory.ABILITY },
-        // { icon: '👻', tip: '幽灵', baseCoins: 4, rarity: Rarity.RARE, category: IconCategory.ABILITY },
-
-
-        // 星座符号类
-        // { icon: '♈', tip: '白羊座', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
-        // { icon: '♉', tip: '金牛座', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
-        // { icon: '♊', tip: '双子座', baseCoins: 9, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
-        // { icon: '♋', tip: '巨蟹座', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
-        // { icon: '♌', tip: '狮子座', baseCoins: 16, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
-        // { icon: '♍', tip: '处女座', baseCoins: 8, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
-        // { icon: '♎', tip: '天秤座', baseCoins: 7, rarity: Rarity.EPIC, category: IconCategory.ZODIAC },
-        // { icon: '♏', tip: '天蝎座', baseCoins: 17, rarity: Rarity.LEGENDARY, category: IconCategory.ZODIAC },
+        { icon: '🔋', tip: '高能电池', baseCoins: 2, rarity: Rarity.COMMON, category: IconCategory.TECH },
+        { icon: '💻', tip: '终端设备', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '🎮', tip: '控制器', baseCoins: 3, rarity: Rarity.RARE, category: IconCategory.TECH },
+        { icon: '📱', tip: '智能设备', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🛰️', tip: '卫星模块', baseCoins: 4, rarity: Rarity.EPIC, category: IconCategory.TECH },
+        { icon: '🤖', tip: '机器人', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
+        { icon: '🛸', tip: '时光机', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.TECH },
 
         // 魔法符文类
         // { icon: '✡️', tip: '六芒星', baseCoins: 15, rarity: Rarity.LEGENDARY, category: IconCategory.RUNE },
@@ -2643,13 +2651,13 @@
     const challengeStyles = `
         #challenge-container {
             position: fixed;
-            top: 80px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            top: 80px;
+            background: rgba(0, 0, 0, 0.8);
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
-            min-width: 200px;
+            width: 280px;
             z-index: 100;
         }
 
@@ -2692,8 +2700,8 @@
     // 挑战列表数据
     const challenges = [
         {
-            slots: 6,
-            coins: 180,
+            slots: 9,
+            coins: 240,
             completed: false,
             commonChance: 90,   // 70% 获得"优秀"品质奖励的概率
             rareChance: 8,    // 25% 获得"精良"品质奖励的概率
@@ -2701,8 +2709,8 @@
             legendaryChance: 0   // 0% 获得"传说"品质奖励的概率
         },
         {
-            slots: 9,
-            coins: 360,
+            slots: 13,
+            coins: 500,
             completed: false,
             commonChance: 80,   // 50% 获得"优秀"品质奖励的概率
             rareChance: 15,    // 35% 获得"精良"品质奖励的概率
@@ -2710,22 +2718,22 @@
             legendaryChance: 0 // 2% 获得"传说"品质奖励的概率
         },
         {
-            slots: 11,
-            coins: 650,
+            slots: 15,
+            coins: 1200,
             completed: false,
             commonChance: 65,   // 30% 获得"优秀"品质奖励的概率
             rareChance: 20,     // 40% 获得"精良"品质奖励的概率
-            epicChance: 13,     // 20% 获得"史诗"品质奖励的概率
-            legendaryChance: 2  // 10% 获得"传说"品质奖励的概率
+            epicChance: 12,     // 20% 获得"史诗"品质奖励的概率
+            legendaryChance: 3  // 10% 获得"传说"品质奖励的概率
         },
         {
-            slots: 13,
-            coins: 1000,
+            slots: 16,
+            coins: 1400,
             completed: false,
             commonChance: 30,
             rareChance: 40,     // 40% 获得"精良"品质奖励的概率
-            epicChance: 25,     // 20% 获得"史诗"品质奖励的概率
-            legendaryChance: 5  // 10% 获得"传说"品质奖励的概率
+            epicChance: 20,     // 20% 获得"史诗"品质奖励的概率
+            legendaryChance: 10  // 10% 获得"传说"品质奖励的概率
         },
     ];
 
@@ -2825,7 +2833,7 @@
         font-size: 24px;
         z-index: 1000;
     `;
-        message.textContent = '😢 租金不足，你被赶了出去';
+        message.textContent = '😢 租金不足，你被赶了出去，菜！';
         document.body.appendChild(message);
         disableControls();
     }
@@ -2946,12 +2954,11 @@
         musicSheet.textContent = musicStyles;
         document.head.appendChild(musicSheet);
 
-
-        initResourcePool();
         initCoinPool();
         initChallengeSystem();
         initCodex();
         initShop();
+        initResourcePanel();
 
         // 在所有初始化完成后显示职业选择面板
         initProfessionSelection();
@@ -2963,124 +2970,26 @@
         hasSelectedUpgrade = true;
     });
 
-    // 1. 定义资源池数据结构 稀有货币
-    let resources = {
-        material: 20,   // 材料资源
-        mystery: 1,    // 神秘资源
-        science: 1     // 科技资源
+    // 资源系统
+    const resources = {
+        material: 5,  // 材料
+        mystic: 1,    // 神秘
+        tech: 1       // 科研
     };
 
-    // 2. 资源池初始化函数
-    function initResourcePool() {
-        // 创建资源池元素
-        const resourcePool = document.createElement('div');
-        resourcePool.id = 'resource-pool';
-        resourcePool.innerHTML = `
-        <div class="resource-title">珍稀资源</div>
-        <div class="resource" data-type="material">
-            <div class="resource-icon">🧱</div>
-            <div class="resource-count" id="material-count">0</div>
-        </div>
-        <div class="resource" data-type="mystery">
-            <div class="resource-icon">✨</div>
-            <div class="resource-count" id="mystery-count">0</div>
-        </div>
-        <div class="resource" data-type="science">
-            <div class="resource-icon">🔬</div>
-            <div class="resource-count" id="science-count">0</div>
-        </div>
-    `;
-
-        // 添加到页面
-        document.body.appendChild(resourcePool);
-
-        // 添加样式
-        const style = document.createElement('style');
-        style.textContent = `
-        #resource-pool {
-            position: fixed;
-            left: 20px;
-            bottom: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            padding: 15px;
-            color: white;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+    // 交易价格配置
+    const tradePrices = {
+        buy: {
+            material: 10, // 10金币买1材料
+            mystic: 10,   // 10金币买1神秘
+            tech: 10      // 10金币买1科研
+        },
+        sell: {
+            material: 3,  // 1材料卖3金币
+            mystic: 3,    // 1神秘卖3金币
+            tech: 3       // 1科研卖3金币
         }
-
-        .resource-title {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-            color: gold;
-        }
-
-        .resource {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .resource-icon {
-            font-size: 24px;
-        }
-
-        .resource-count {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .resource-highlight {
-            animation: resourceBounce 0.5s ease;
-        }
-
-        .flying-resource {
-            position: fixed;
-            font-size: 20px;
-            z-index: 1000;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        @keyframes resourceBounce {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        .resource-text {
-            position: fixed;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-            transform: translate(-50%, -50%);
-            z-index: 101;
-            animation: resourceTextFloat 1.5s ease-out;
-            white-space: nowrap;
-        }
-
-        @keyframes resourceTextFloat {
-            0% { opacity: 0; transform: translate(-50%, 0); }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; transform: translate(-50%, -30px); }
-        }
-    `;
-        document.head.appendChild(style);
-
-        // 初始更新资源显示
-        updateResourceDisplay();
-    }
+    };
 
     // 3. 更新资源显示
     function updateResourceDisplay() {
@@ -4225,6 +4134,90 @@
 
     // 将新样式添加到原有的商店样式中
     const updatedShopStyles = shopStyles + additionalShopStyles;
+
+    function initResourcePanel() {
+        const panel = document.createElement('div');
+        panel.className = 'resource-panel';
+        panel.innerHTML = `
+            <h3>资源交易</h3>
+            <div class="resource-item">
+                <div class="resource-info">
+                    <div class="resource-name">材料 🧱</div>
+                    <div class="resource-count" id="material-count">0</div>
+                </div>
+                <div class="resource-actions">
+                    <button class="trade-btn buy-btn" onclick="buyResource('material')">
+                        买入(${tradePrices.buy.material}💰)
+                    </button>
+                    <button class="trade-btn sell-btn" onclick="sellResource('material')">
+                        卖出(+${tradePrices.sell.material}💰)
+                    </button>
+                </div>
+            </div>
+            <div class="resource-item">
+                <div class="resource-info">
+                    <div class="resource-name">神秘 ✨</div>
+                    <div class="resource-count" id="mystic-count">0</div>
+                </div>
+                <div class="resource-actions">
+                    <button class="trade-btn buy-btn" onclick="buyResource('mystic')">
+                        买入(${tradePrices.buy.mystic}💰)
+                    </button>
+                    <button class="trade-btn sell-btn" onclick="sellResource('mystic')">
+                        卖出(+${tradePrices.sell.mystic}💰)
+                    </button>
+                </div>
+            </div>
+            <div class="resource-item">
+                <div class="resource-info">
+                    <div class="resource-name">科研 🔬</div>
+                    <div class="resource-count" id="tech-count">0</div>
+                </div>
+                <div class="resource-actions">
+                    <button class="trade-btn buy-btn" onclick="buyResource('tech')">
+                        买入(${tradePrices.buy.tech}💰)
+                    </button>
+                    <button class="trade-btn sell-btn" onclick="sellResource('tech')">
+                        卖出(+${tradePrices.sell.tech}💰)
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(panel);
+        updateResourceDisplay();
+    }
+
+    function buyResource(type) {
+        const price = tradePrices.buy[type];
+        if (coinCount >= price) {
+            coinCount -= price;
+            resources[type]++;
+            updateCoinDisplay();
+            updateResourceDisplay();
+        } else {
+            showResourceError('金币不足!');
+        }
+    }
+
+    function sellResource(type) {
+        if (resources[type] > 0) {
+            resources[type]--;
+            coinCount += tradePrices.sell[type];
+            updateCoinDisplay();
+            updateResourceDisplay();
+        } else {
+            showResourceError(`${type}资源不足!`);
+        }
+    }
+
+    function updateResourceDisplay() {
+        Object.keys(resources).forEach(type => {
+            const element = document.getElementById(`${type}-count`);
+            if (element) {
+                element.textContent = resources[type];
+            }
+        });
+    }
 </script>
 </body>
 </html>
