@@ -451,7 +451,7 @@
 
         { icon: '🧑‍🌾', tip: '农夫', baseCoins: 0, rarity: Rarity.RARE,
             description: '勤劳的耕种者，与自然和植物亲近',
-            excludeCategories: [IconCategory.TECH, IconCategory.MAGIC, IconCategory.MARINE, IconCategory.TREASURE] }
+            excludeCategories: [IconCategory.TECH, IconCategory.MAGIC] }
     ];
 
     // 添加职业选择面板HTML
@@ -2767,7 +2767,7 @@
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 // 检查科技资源是否足够
-                if (resources.science < 1) {
+                if (resources.tech < 1) {
                     showResourceError('需要 1 个🔬科技资源才能删除手牌');
                     return;
                 }
@@ -2776,11 +2776,31 @@
                 const cardIndex = Array.from(cardElement.parentNode.children).indexOf(cardElement);
 
                 // 消耗科技资源
-                resources.science--;
+                resources.tech--;
                 updateResourceDisplay();
 
                 // 移除手牌
+                const removedCard = handCards[cardIndex];
+                if (removedCard.category === IconCategory.BUILDING) {
+                    // 查找并移除对应的固定建筑格子
+                    const buildingSlots = document.querySelectorAll('.building-slot');
+                    buildingSlots.forEach(slot => {
+                        const slotCard = slot.__card;
+                        if (slotCard &&
+                            slotCard.icon === removedCard.icon &&
+                            slotCard.tip === removedCard.tip) {
+                            // 移除建筑样式
+                            slot.classList.remove('building-slot');
+                            // 清空格子内容
+                            slot.innerHTML = '';
+                            slot.__card = null;
+                            // 移除提示
+                            slot.removeAttribute('data-tooltip');
+                        }
+                    });
+                }
                 handCards.splice(cardIndex, 1);
+
 
                 // 更新图鉴显示
                 renderCodex();
@@ -2791,7 +2811,7 @@
         document.querySelectorAll('.transform-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 // 检查神秘资源是否足够
-                if (resources.mystery < 1) {
+                if (resources.mystic < 1) {
                     showResourceError('需要 1 个🔮神秘资源才能变换手牌');
                     return;
                 }
@@ -2800,7 +2820,7 @@
                 const cardIndex = Array.from(cardElement.parentNode.children).indexOf(cardElement);
 
                 // 消耗神秘资源
-                resources.mystery--;
+                resources.mystic--;
                 updateResourceDisplay();
 
                 // 替换为随机卡牌
